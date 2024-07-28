@@ -6,6 +6,7 @@ import com.fledge.fledgeserver.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,15 +14,11 @@ import io.swagger.v3.oas.annotations.Operation;
 
 @Tag(name = "회원 관리 API", description = "회원 관리와 관련된 API")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/members")
 public class MemberController {
 
     private final MemberService memberService;
-
-    @Autowired
-    public MemberController(MemberService memberService) {
-        this.memberService = memberService;
-    }
 
     @Operation(summary = "회원 상세 정보 조회", description = "회원 ID로 회원의 상세 정보를 조회합니다.")
     @GetMapping("/{id}")
