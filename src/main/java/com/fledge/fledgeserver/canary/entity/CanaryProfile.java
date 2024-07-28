@@ -1,6 +1,7 @@
 package com.fledge.fledgeserver.canary.entity;
 
 import com.fledge.fledgeserver.canary.dto.CanaryProfileUpdateRequest;
+import com.fledge.fledgeserver.common.entity.BaseTimeEntity;
 import com.fledge.fledgeserver.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -13,7 +14,7 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class CanaryProfile {
+public class CanaryProfile extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,10 +62,9 @@ public class CanaryProfile {
     private Double longitude;
 
     @Builder
-    public CanaryProfile(Long id, Member member, String phone, Date birth, Boolean gender, String introduction,
-                         String address, String detailAddress, String zip, String interestArea,
-                         String certificateFilePath, Boolean approvalStatus, Double latitude, Double longitude) {
-        this.id = id;
+    public CanaryProfile(Member member, String phone, Date birth, Boolean gender, String address, String detailAddress,
+                         String zip, String certificateFilePath, String interestArea, Boolean approvalStatus,
+                         Double latitude, Double longitude) {
         this.member = member;
         this.phone = phone;
         this.birth = birth;
@@ -73,8 +73,8 @@ public class CanaryProfile {
         this.address = address;
         this.detailAddress = detailAddress;
         this.zip = zip;
-        this.interestArea = interestArea;
         this.certificateFilePath = certificateFilePath;
+        this.interestArea = interestArea;
         this.approvalStatus = approvalStatus;
         this.latitude = latitude;
         this.longitude = longitude;
