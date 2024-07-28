@@ -4,7 +4,10 @@ name: CI/CD with Git Actions & Docker Hub
 on:
   push:
     branches:
-      - GitActionsTest
+      - main
+#  pull_request:
+#    branches:
+#      - main
 
 jobs:
   build:
@@ -18,7 +21,7 @@ jobs:
       - name: Set application.yml
         run: |
           mkdir -p ./src/main/resources
-          echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > ./src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
 
       # Open JDK 17 설정
       - name: Set up JDK 17
