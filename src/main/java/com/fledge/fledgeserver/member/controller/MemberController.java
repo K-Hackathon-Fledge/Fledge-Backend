@@ -3,20 +3,16 @@ package com.fledge.fledgeserver.member.controller;
 import com.fledge.fledgeserver.member.dto.MemberNicknameUpdateRequest;
 import com.fledge.fledgeserver.member.dto.MemberResponse;
 import com.fledge.fledgeserver.member.service.MemberService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/members")
 public class MemberController {
 
     private final MemberService memberService;
-
-    @Autowired
-    public MemberController(MemberService memberService) {
-        this.memberService = memberService;
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<MemberResponse> getMemberDetails(@PathVariable Long id) {
