@@ -1,9 +1,10 @@
 package com.fledge.fledgeserver.exception;
 
 import static com.fledge.fledgeserver.exception.ErrorCode.INVALID_REQUEST;
-import static com.fledge.fledgeserver.exception.ErrorCode.RESOURCE_NOT_FOUND;
+import static com.fledge.fledgeserver.exception.ErrorCode.DATA_INTEGRITY_VIOLATION;
 
 import com.fledge.fledgeserver.exception.dto.ErrorResponse;
+
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,7 +38,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         log.error("DataIntegrityViolationException is occurred. ", e);
-        return ErrorResponse.toResponseEntity(RESOURCE_NOT_FOUND, RESOURCE_NOT_FOUND.getMessage());
+        return ErrorResponse.toResponseEntity(DATA_INTEGRITY_VIOLATION, DATA_INTEGRITY_VIOLATION.getMessage());
     }
 
 }
