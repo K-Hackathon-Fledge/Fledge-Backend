@@ -13,59 +13,66 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout-source code
+      # 소스 코드를 체크아웃 (클론)합니다.
+      - name: Checkout source code
         uses: actions/checkout@v3
 
+      # application.yml 파일 생성
       - name: Set application.yml
         run: |
           mkdir -p ./src/main/resources
           touch ./src/main/resources/application.yml
           echo ${{ secrets.APPLICATION_YML }} | base64 --decode >> ./src/main/resources/application.yml
 
+      # Open JDk 17 설정
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
+      # Gradle 실행권한 부여
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
 
+      # Spring Boot 애플리케이션을 Gradle로 빌드 (테스트는 제외)
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      - name: Login docker hub
+      # Docker Hub에 로그인합니다.
+      - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Spring Boot 애플리케이션의 Docker 이미지를 빌드하고 Docker Hub에 푸쉬합니다.
       - name: Build and push Spring Boot app Docker image
-        run:
+        run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:backend --platform linux/amd64 .
-
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:backend
 
+      # EC2 인스턴스에서 Docker 이미지를 pull하고 애플리케이션을 배포합니다.
       - name: Deploy at EC2 instance
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
+          host: ${{ secrets.SSH_HOST }}  # 퍼블릭 IPv4 DNS
           username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}  # EC2 인스턴스의 PEM 키
+          port: ${{ secrets.SSH_PORT }}  # 보안 그룹 인바운드 규칙의 SSH 포트 번호
           script: |
             # Docker Hub 로그인
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
             
             # 기존 컨테이너 중단 및 제거
-            CONTAINER_NAME="backend" # 컨테이너 이름 (필요시 변경)
+            CONTAINER_NAME="backend"  # 컨테이너 이름 (필요시 변경)
             if [ "$(sudo docker ps -q -f name=$CONTAINER_NAME)" ]; then
               sudo docker stop $CONTAINER_NAME 
               sudo docker rm $CONTAINER_NAME 
             fi
             
             # 최신 이미지를 Pull
-            sudo docker pull ${{ secrets.DOCKERHUB_REPOSITORY }}:backend
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:backend
             
             # 사용하지 않는 Docker 이미지 삭제
             sudo docker image prune -f
@@ -76,4 +83,4 @@ jobs:
               -p 80:8080 \
               --log-opt awslogs-stream=backend \
               --log-opt awslogs-region=ap-northeast-2 \
-              ${{ secrets.DOCKERHUB_REPOSITORY }}:backend
+              ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:backend
