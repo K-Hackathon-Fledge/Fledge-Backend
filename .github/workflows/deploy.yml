@@ -60,23 +60,27 @@ jobs:
             # Docker Hub 로그인
             docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
             
-            # 기존 컨테이너 중단 및 제거
-            CONTAINER_NAME="backend"  # 컨테이너 이름 (필요 시 변경)
-            if [ "$(sudo docker ps -q -f name=$CONTAINER_NAME)" ]; then
-              sudo docker stop "$CONTAINER_NAME" 
-              sudo docker rm "$CONTAINER_NAME" 
-            fi
+            # 컨테이너 이름 설정
+            CONTAINER_NAME="backend"
             
-            # 최신 이미지를 Pull
-            sudo docker pull "${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:backend"
+            # 기존 컨테이너 중단 및 제거
+            if [ "$(sudo docker ps -q -f name=$CONTAINER_NAME)" ]; then
+                sudo docker stop "$CONTAINER_NAME" 
+                sudo docker rm "$CONTAINER_NAME" 
+            fi
             
             # 사용하지 않는 Docker 이미지 삭제
             sudo docker image prune -f
             
-            # 새로운 컨테이너 실행 (포트 매핑: 80 -> 8080)
+            # 최신 이미지 Pull
+            sudo docker pull "${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:backend"
+            
+            # 새로운 컨테이너 실행
             sudo docker run -d \
-              --name "$CONTAINER_NAME" \
-              -p 80:8080 \
-              --log-opt awslogs-stream=backend \
-              --log-opt awslogs-region=ap-northeast-2 \
-              "${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:backend"
+                --name "$CONTAINER_NAME" \
+                -p 80:8080 \
+                --log-driver=awslogs \
+                --log-opt awslogs-group=/fledge/backend \
+                --log-opt awslogs-region=ap-northeast-2 \
+                --log-opt awslogs-stream="$CONTAINER_NAME" \
+                "${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:backend"
