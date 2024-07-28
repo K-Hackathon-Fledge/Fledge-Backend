@@ -2,9 +2,12 @@ name: CI/CD with Git Actions & Docker Hub
 
 # 워크플로우 트리거: 브랜치에 대한 push 이벤트 발생 시 실행
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - test
+#  pull_request:
+#    branches:
+#      - main
 
 jobs:
   build:
