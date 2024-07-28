@@ -27,6 +27,7 @@ public enum ErrorCode {
     INTERNAL_ERROR(INTERNAL_SERVER_ERROR, "예상치못한 에러가 발생했습니다."),
 
     // canary profile
+    CANARY_NOT_FOUND(NOT_FOUND, "자립준비청년을 찾을 수 없습니다."),
     DUPLICATE_APPLICATION(HttpStatus.CONFLICT, "이미 신청된 유저입니다.");
 
     private final HttpStatus httpStatus;

@@ -1,5 +1,6 @@
 package com.fledge.fledgeserver.canary.entity;
 
+import com.fledge.fledgeserver.canary.dto.CanaryProfileUpdateRequest;
 import com.fledge.fledgeserver.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -60,20 +61,35 @@ public class CanaryProfile {
     private Double longitude;
 
     @Builder
-    public CanaryProfile(Member member, String phone, Date birth, Boolean gender, String address, String detailAddress,
-                         String zip, String certificateFilePath, String interestArea, Boolean approvalStatus,
-                         Double latitude, Double longitude) {
+    public CanaryProfile(Long id, Member member, String phone, Date birth, Boolean gender, String introduction,
+                         String address, String detailAddress, String zip, String interestArea,
+                         String certificateFilePath, Boolean approvalStatus, Double latitude, Double longitude) {
+        this.id = id;
         this.member = member;
         this.phone = phone;
         this.birth = birth;
         this.gender = gender;
+        this.introduction = introduction;
         this.address = address;
         this.detailAddress = detailAddress;
         this.zip = zip;
-        this.certificateFilePath = certificateFilePath;
         this.interestArea = interestArea;
+        this.certificateFilePath = certificateFilePath;
         this.approvalStatus = approvalStatus;
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public void update(CanaryProfileUpdateRequest request) {
+        this.phone = request.getPhone();
+        this.birth = request.getBirth();
+        this.gender = request.getGender();
+        this.introduction = request.getIntroduction();
+        this.address = request.getAddress();
+        this.detailAddress = request.getDetailAddress();
+        this.zip = request.getZip();
+        this.interestArea = request.getInterestArea();
+        this.latitude = request.getLatitude();
+        this.longitude = request.getLongitude();
     }
 }

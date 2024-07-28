@@ -1,6 +1,8 @@
 package com.fledge.fledgeserver.canary.service;
 
 import com.fledge.fledgeserver.canary.dto.CanaryProfileRequest;
+import com.fledge.fledgeserver.canary.dto.CanaryProfileResponse;
+import com.fledge.fledgeserver.canary.dto.CanaryProfileUpdateRequest;
 import com.fledge.fledgeserver.canary.entity.CanaryProfile;
 import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
 import com.fledge.fledgeserver.exception.CustomException;
@@ -44,5 +46,23 @@ public class CanaryProfileService {
                 .build();
 
         canaryProfileRepository.save(canaryProfile);
+    }
+
+    @Transactional(readOnly = true)
+    public CanaryProfileResponse getCanaryProfile(Long userId) {
+        CanaryProfile canaryProfile = canaryProfileRepository.findByMemberId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
+
+        return new CanaryProfileResponse(canaryProfile);
+    }
+
+    @Transactional
+    public void updateCanaryProfile(Long userId, CanaryProfileUpdateRequest request) {
+        CanaryProfile existingProfile = canaryProfileRepository.findByMemberId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
+
+        existingProfile.update(request);
+
+        canaryProfileRepository.save(existingProfile);
     }
 }
