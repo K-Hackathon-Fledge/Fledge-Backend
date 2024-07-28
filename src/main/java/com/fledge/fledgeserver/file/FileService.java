@@ -29,15 +29,22 @@ public class FileService {
 
     public PresignedUrlResponse getPresignedUrl(String prefix, String originalFileName) {
         String filePath = createPath(prefix, originalFileName);
-        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(bucket, filePath);
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(bucket, filePath, HttpMethod.PUT);
         URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
 
         return new PresignedUrlResponse(url.toString(), filePath);
     }
 
-    private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String bucket, String fileName) {
+    public String getFileUrl(String filePath) {
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(bucket, filePath, HttpMethod.GET);
+        URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+
+        return url.toString();
+    }
+
+    private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String bucket, String fileName, HttpMethod method) {
         GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, fileName)
-                .withMethod(HttpMethod.PUT)
+                .withMethod(method)
                 .withExpiration(getPresignedUrlExpiration());
 
         return generatePresignedUrlRequest;
