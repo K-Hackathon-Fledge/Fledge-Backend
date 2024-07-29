@@ -1,5 +1,6 @@
 package com.fledge.fledgeserver.support.controller;
 
+import com.fledge.fledgeserver.response.ApiResponse;
 import com.fledge.fledgeserver.support.dto.request.SupportCreateRequestDto;
 import com.fledge.fledgeserver.support.service.SupportService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
+import static com.fledge.fledgeserver.response.SuccessStatus.CREATE_SUPPORT_SUCCESS;
 
 @Tag(name = "후원하기 API", description = "후원하기와 관련된 API")
 @RestController
@@ -22,10 +23,9 @@ public class SupportController {
 
     @Operation(summary = "후원하기 게시글 등록", description = "후원하기 게시글을 등록합니다.(자립 준비 청소년만)")
     @PostMapping
-    public ResponseEntity<URI> createSupport(@RequestBody SupportCreateRequestDto supportCreateRequestDto){
-        Long createdId = supportService.createSupport(supportCreateRequestDto);
-        URI location = URI.create(String.format("/api/supports/%d", createdId));
-        return ResponseEntity.created(location).body(location);
+    public ResponseEntity<ApiResponse<Object>> createSupport(@RequestBody SupportCreateRequestDto supportCreateRequestDto){
+        supportService.createSupport(supportCreateRequestDto);
+        return ApiResponse.success(CREATE_SUPPORT_SUCCESS);
     }
 
 

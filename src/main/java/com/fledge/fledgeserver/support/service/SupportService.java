@@ -16,7 +16,7 @@ public class SupportService {
     private final SupportRepository supportRepository;
     private final SupportImageRepository supportImageRepository;
 
-    public Long createSupport(SupportCreateRequestDto supportCreateRequestDto) {
+    public void createSupport(SupportCreateRequestDto supportCreateRequestDto) {
 
         Support support = Support.builder()
                 .title(supportCreateRequestDto.getTitle())
@@ -36,7 +36,5 @@ public class SupportService {
                     .build();
             support.getImages().add(supportImage);
         }
-
-        return supportRepository.save(support).getId();
     }
 }
