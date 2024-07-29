@@ -17,6 +17,13 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
+    public MemberResponse memberInfo(String email) {
+        Member member = memberRepository.findByEmailAndActiveTrue(email)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+        return new MemberResponse(member);
+    }
+
+    @Transactional(readOnly = true)
     public MemberResponse getMemberDetails(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));

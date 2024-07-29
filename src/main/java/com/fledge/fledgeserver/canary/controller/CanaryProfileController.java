@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "자립준비청년 API", description = "자립준비청년 관리 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/canary")
+@RequestMapping("/api/v1/canary")
 public class CanaryProfileController {
 
     private final CanaryProfileService canaryProfileService;

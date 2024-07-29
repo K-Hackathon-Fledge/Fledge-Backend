@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,10 +17,18 @@ import io.swagger.v3.oas.annotations.Operation;
 @Tag(name = "회원 관리 API", description = "회원 관리와 관련된 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/members")
+@RequestMapping("/api/v1/members")
 public class MemberController {
 
     private final MemberService memberService;
+
+
+    @Operation(summary = "현재 유저 정보 조회", description = "현재 인증된 유저의 정보를 조회합니다.")
+    @GetMapping("/me")
+    public ResponseEntity<MemberResponse> memberInfo(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(memberService.memberInfo(userDetails.getUsername()));
+    }
 
     @Operation(summary = "회원 상세 정보 조회", description = "회원 ID로 회원의 상세 정보를 조회합니다.")
     @GetMapping("/{id}")
