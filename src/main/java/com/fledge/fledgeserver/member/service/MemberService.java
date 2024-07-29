@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_FORBIDDEN;
 import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_NOT_FOUND;
 
 @Service
@@ -31,9 +32,15 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse updateNickname(Long memberId, String newNickname) {
-        Member member = memberRepository.findById(memberId)
+    public MemberResponse updateNickname(Long memberId, String newNickname, String currentUserEmail) {
+
+        Member member = memberRepository.findByEmailAndActiveTrue(currentUserEmail)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+
+        if (member.getId() != memberId){
+            throw new CustomException(MEMBER_FORBIDDEN);
+        }
+
         member.updateNickname(newNickname);
         memberRepository.save(member);
         return new MemberResponse(member);

@@ -47,8 +47,9 @@ public class MemberController {
     @PutMapping("/{id}/nickname")
     public ResponseEntity<ApiResponse<MemberResponse>> updateNickname(
             @Parameter(description = "회원 ID", required = true, example = "1") @PathVariable Long id,
-            @Parameter(description = "닉네임 수정 요청", required = true) @RequestBody MemberNicknameUpdateRequest request) {
-        MemberResponse memberResponse = memberService.updateNickname(id, request.getNickname());
+            @Parameter(description = "닉네임 수정 요청", required = true) @RequestBody MemberNicknameUpdateRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        MemberResponse memberResponse = memberService.updateNickname(id, request.getNickname(), userDetails.getUsername());
         return ApiResponse.success(SuccessStatus.MEMBER_NICKNAME_UPDATE_SUCCESS, memberResponse);
     }
 }

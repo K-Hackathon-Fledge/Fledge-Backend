@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_FORBIDDEN;
+import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_NOT_FOUND;
+
 
 @Service
 @RequiredArgsConstructor
@@ -22,9 +25,8 @@ public class CanaryProfileService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void createCanaryProfile(CanaryProfileRequest request) {
-        Member member = memberRepository.findById(request.getUserId())
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    public void createCanaryProfile(CanaryProfileRequest request, String currentUserEmail) {
+        Member member = authenticateAndAuthorize(currentUserEmail, request.getUserId());
 
         boolean exists = canaryProfileRepository.existsByMember(member);
         if (exists) {
@@ -49,6 +51,22 @@ public class CanaryProfileService {
     }
 
     @Transactional(readOnly = true)
+    public int getApprovalStatus(Long userId, String currentUserEmail) {
+        authenticateAndAuthorize(currentUserEmail, userId);
+
+        CanaryProfile canaryProfile = canaryProfileRepository.findByMemberId(userId)
+                .orElse(null);
+
+        if (canaryProfile == null) {
+            return 0;
+        } else if (!canaryProfile.getApprovalStatus()) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
+
+    @Transactional(readOnly = true)
     public CanaryProfileResponse getCanaryProfile(Long userId) {
         CanaryProfile canaryProfile = canaryProfileRepository.findByMemberId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
@@ -57,7 +75,9 @@ public class CanaryProfileService {
     }
 
     @Transactional
-    public CanaryProfileResponse updateCanaryProfile(Long userId, CanaryProfileUpdateRequest request) {
+    public CanaryProfileResponse updateCanaryProfile(Long userId, CanaryProfileUpdateRequest request, String currentUserEmail) {
+        authenticateAndAuthorize(currentUserEmail, userId);
+
         CanaryProfile existingProfile = canaryProfileRepository.findByMemberId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
 
@@ -66,5 +86,17 @@ public class CanaryProfileService {
         canaryProfileRepository.save(existingProfile);
 
         return new CanaryProfileResponse(existingProfile);
+    }
+
+
+    private Member authenticateAndAuthorize(String currentUserEmail, Long userId) {
+        Member member = memberRepository.findByEmailAndActiveTrue(currentUserEmail)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+
+        if (member.getId() != userId) {
+            throw new CustomException(MEMBER_FORBIDDEN);
+        }
+
+        return member;
     }
 }
