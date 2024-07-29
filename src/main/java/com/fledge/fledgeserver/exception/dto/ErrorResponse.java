@@ -1,6 +1,7 @@
 package com.fledge.fledgeserver.exception.dto;
 
 import com.fledge.fledgeserver.exception.ErrorCode;
+import com.fledge.fledgeserver.response.ApiResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -18,15 +19,19 @@ public class ErrorResponse {
     private final String code;
     private final String missValue;
 
-    public static ResponseEntity<ErrorResponse> toResponseEntity(ErrorCode errorCode, String value) {
-        return ResponseEntity
-                .status(errorCode.getHttpStatus())
-                .body(ErrorResponse.builder()
-                        .status(errorCode.getHttpStatus().value())
-                        .error(errorCode.getHttpStatus().name())
-                        .code(errorCode.name())
-                        .missValue(value)
-                        .build()
-                );
+//    public static ResponseEntity<ErrorResponse> toResponseEntity(ErrorCode errorCode, String value) {
+//        return ResponseEntity
+//                .status(errorCode.getHttpStatus())
+//                .body(ErrorResponse.builder()
+//                        .status(errorCode.getHttpStatus().value())
+//                        .error(errorCode.getHttpStatus().name())
+//                        .code(errorCode.name())
+//                        .missValue(value)
+//                        .build()
+//                );
+//    }
+
+    public static <T> ResponseEntity<ApiResponse<T>> toResponseEntity(ErrorCode errorCode, String message) {
+        return ApiResponse.fail(errorCode.getHttpStatus().value(), message);
     }
 }

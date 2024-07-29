@@ -57,12 +57,14 @@ public class CanaryProfileService {
     }
 
     @Transactional
-    public void updateCanaryProfile(Long userId, CanaryProfileUpdateRequest request) {
+    public CanaryProfileResponse updateCanaryProfile(Long userId, CanaryProfileUpdateRequest request) {
         CanaryProfile existingProfile = canaryProfileRepository.findByMemberId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
 
         existingProfile.update(request);
 
         canaryProfileRepository.save(existingProfile);
+
+        return new CanaryProfileResponse(existingProfile);
     }
 }

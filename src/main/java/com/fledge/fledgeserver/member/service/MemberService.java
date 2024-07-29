@@ -31,10 +31,11 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateNickname(Long memberId, String newNickname) {
+    public MemberResponse updateNickname(Long memberId, String newNickname) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
         member.updateNickname(newNickname);
         memberRepository.save(member);
+        return new MemberResponse(member);
     }
 }
