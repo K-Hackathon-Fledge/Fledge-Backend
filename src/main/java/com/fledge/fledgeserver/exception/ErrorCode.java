@@ -17,6 +17,7 @@ public enum ErrorCode {
 
     // member
     MEMBER_NOT_FOUND(NOT_FOUND, "회원을 찾을 수 없습니다."),
+    MEMBER_FORBIDDEN(FORBIDDEN, "회원 본인에게만 권한이 있습니다."),
 
     // global
     NO_ACCESS(FORBIDDEN, "접근 권한이 없습니다."),

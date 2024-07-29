@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -40,6 +41,10 @@ public class Member extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String registerType;
+
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private boolean active;
 
 
     @Builder
