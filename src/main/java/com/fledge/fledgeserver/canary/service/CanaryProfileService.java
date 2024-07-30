@@ -1,5 +1,6 @@
 package com.fledge.fledgeserver.canary.service;
 
+import com.fledge.fledgeserver.canary.dto.CanaryGetDeliveryInfoResponse;
 import com.fledge.fledgeserver.canary.dto.CanaryProfileRequest;
 import com.fledge.fledgeserver.canary.dto.CanaryProfileResponse;
 import com.fledge.fledgeserver.canary.dto.CanaryProfileUpdateRequest;
@@ -12,6 +13,8 @@ import com.fledge.fledgeserver.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_FORBIDDEN;
 import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_NOT_FOUND;
@@ -98,5 +101,17 @@ public class CanaryProfileService {
         }
 
         return member;
+    }
+
+    @Transactional(readOnly = true)
+    public CanaryGetDeliveryInfoResponse getCanaryDeliveryInfo(Long memberId) {
+        CanaryProfile canary = canaryProfileRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
+        return new CanaryGetDeliveryInfoResponse(
+                canary.getAddress(),
+                canary.getDetailAddress(),
+                canary.getZip(),
+                canary.getPhone()
+        );
     }
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -52,8 +53,24 @@ public class SupportCreateRequestDto {
     @Positive(message = "후원 인증 횟수는 0보다 큰 값이어야 합니다.")
     private int checkCount;
 
-    @Schema(description = "만료 시점", required = true, example = "2024-12-31T23:59:59")
+    @Schema(description = "만료 시점", required = true, example = "2024-12-31")
     @NotBlank(message = "만료 시점은 필수입니다.")
     @Future(message = "만료 시점은 현재 시간 이후여야 합니다.")
-    private LocalDateTime expirationTime;
+    private LocalDate expirationDate;
+
+    @Schema(description = "거주지", example = "서울특별시 강남구 역삼동")
+    private String address;
+
+    @Schema(description = "상세 주소", example = "123-45")
+    private String detailAddress;
+
+    @Schema(description = "우편번호", example = "12345")
+    private String zip;
+
+    @Schema(description = "이름", example = "이길동")
+    private String name;
+
+    @Schema(description = "전화번호", example = "010-1234-5678")
+    private String phone;
+
 }
