@@ -1,9 +1,12 @@
 package com.fledge.fledgeserver.support.service;
 
+import com.fledge.fledgeserver.canary.entity.CanaryProfile;
 import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
 import com.fledge.fledgeserver.exception.CustomException;
 import com.fledge.fledgeserver.exception.ErrorCode;
 import com.fledge.fledgeserver.file.FileService;
+import com.fledge.fledgeserver.member.entity.Member;
+import com.fledge.fledgeserver.member.repository.MemberRepository;
 import com.fledge.fledgeserver.support.dto.request.SupportCreateRequestDto;
 import com.fledge.fledgeserver.support.dto.response.SupportDetailGetResponseDto;
 import com.fledge.fledgeserver.support.entity.Support;
@@ -14,20 +17,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class SupportService {
     private final CanaryProfileRepository canaryProfileRepository;
+    private final MemberRepository memberRepository;
     private final SupportRepository supportRepository;
     private final FileService fileService;
 
     @Transactional
     public void createSupport(Long memberId, SupportCreateRequestDto supportCreateRequestDto) {
          // 자립 청소년인지 검증 -> canary_profile 테이블에 없으면 권한이 없는 것
-        canaryProfileRepository.findCanaryProfileByMemberId(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
+        canaryProfileRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
 
         Support support = Support.builder()
@@ -55,6 +60,7 @@ public class SupportService {
                     .build();
             support.getImages().add(supportImage);
         }
+        System.out.println("done");
     }
 
     @Transactional(readOnly = true)

@@ -1,6 +1,5 @@
 package com.fledge.fledgeserver.support.controller;
 
-import com.fledge.fledgeserver.common.util.MemberUtil;
 import com.fledge.fledgeserver.response.ApiResponse;
 import com.fledge.fledgeserver.support.dto.request.SupportCreateRequestDto;
 import com.fledge.fledgeserver.support.dto.response.SupportDetailGetResponseDto;
@@ -26,8 +25,9 @@ public class SupportController {
     @Operation(summary = "후원하기 게시글 등록", description = "후원하기 게시글을 등록합니다.(자립 준비 청소년만)")
     @PostMapping
     public ResponseEntity<ApiResponse<Object>> createSupport(Principal principal, @RequestBody SupportCreateRequestDto supportCreateRequestDto){
-        Long memberId = MemberUtil.getMemberId(principal);
-        supportService.createSupport(memberId, supportCreateRequestDto);
+        System.out.println("Start");
+//        Long memberId = MemberUtil.getMemberId(principal);
+//        supportService.createSupport(memberId, supportCreateRequestDto);
         return ApiResponse.success(CREATE_SUPPORT_SUCCESS);
     }
 

@@ -1,4 +1,4 @@
-package com.fledge.fledgeserver.common.util;
+package com.fledge.fledgeserver.common.utils;
 
 import lombok.RequiredArgsConstructor;
 

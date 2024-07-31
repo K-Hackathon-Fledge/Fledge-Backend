@@ -1,5 +1,6 @@
 package com.fledge.fledgeserver.auth.jwt;
 
+import com.fledge.fledgeserver.auth.service.CustomUserDetailsService;
 import com.fledge.fledgeserver.auth.service.TokenService;
 import com.fledge.fledgeserver.exception.TokenException;
 import io.jsonwebtoken.Claims;
@@ -21,6 +22,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -42,6 +45,7 @@ public class TokenProvider {
 
     private static final String KEY_ROLE = "role";
     private final TokenService tokenService;
+    private final CustomUserDetailsService userDetailsService;
 
     @PostConstruct
     private void setSecretKey() {
@@ -78,8 +82,9 @@ public class TokenProvider {
         Claims claims = parseClaims(token);
         List<SimpleGrantedAuthority> authorities = getAuthorities(claims);
 
-        User principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(
+                claims.getSubject());
+        return new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
     }
 
     private List<SimpleGrantedAuthority> getAuthorities(Claims claims) {
