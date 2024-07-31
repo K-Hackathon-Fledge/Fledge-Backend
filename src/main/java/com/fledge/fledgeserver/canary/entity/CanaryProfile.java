@@ -25,6 +25,9 @@ public class CanaryProfile extends BaseTimeEntity {
     private Member member;
 
     @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
     private String phone;
 
     @Column(nullable = false)
@@ -62,10 +65,11 @@ public class CanaryProfile extends BaseTimeEntity {
     private Double longitude;
 
     @Builder
-    public CanaryProfile(Member member, String phone, Date birth, Boolean gender, String address, String detailAddress,
+    public CanaryProfile(Member member, String name, String phone, Date birth, Boolean gender, String address, String detailAddress,
                          String zip, String certificateFilePath, String interestArea, Boolean approvalStatus,
                          Double latitude, Double longitude) {
         this.member = member;
+        this.name = name;
         this.phone = phone;
         this.birth = birth;
         this.gender = gender;
@@ -81,6 +85,7 @@ public class CanaryProfile extends BaseTimeEntity {
     }
 
     public void update(CanaryProfileUpdateRequest request) {
+        this.name = request.getName();
         this.phone = request.getPhone();
         this.birth = request.getBirth();
         this.gender = request.getGender();

@@ -12,5 +12,4 @@ public interface CanaryProfileRepository extends JpaRepository<CanaryProfile, Lo
     Optional<CanaryProfile> findByMemberId(Long memberId);
 
     Optional<CanaryProfile> findCanaryProfileByMemberId(Long memberId);
-
 }

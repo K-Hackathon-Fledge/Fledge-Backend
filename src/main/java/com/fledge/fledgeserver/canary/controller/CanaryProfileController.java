@@ -7,6 +7,7 @@ import com.fledge.fledgeserver.canary.dto.CanaryProfileResponse;
 import com.fledge.fledgeserver.canary.dto.CanaryProfileUpdateRequest;
 import com.fledge.fledgeserver.canary.service.CanaryProfileService;
 import com.fledge.fledgeserver.common.utils.SecurityUtils;
+import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.response.ApiResponse;
 import com.fledge.fledgeserver.response.SuccessStatus;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -21,7 +22,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.security.Principal;
-
 
 @Tag(name = "자립준비청년 API", description = "자립준비청년 관리 관련 API")
 @RestController
@@ -73,10 +73,12 @@ public class CanaryProfileController {
 
     @Operation(summary = "자립준비청년 배송지 정보 조회", description = "자립준비청년 후원글 작성 시 배송지 정보를 불러올 수 있습니다.")
     @GetMapping("/delivery")
-    public ResponseEntity<ApiResponse<CanaryGetDeliveryInfoResponse>> getCanaryDeliveryInfo(@AuthenticationPrincipal OAuthUserImpl oAuth2User) {
-        Long userId = oAuth2User.getMember().getId();
-        System.out.println("userId = " + userId);
-        
-        return ApiResponse.success(SuccessStatus.DELIVERY_INFO_GET_SUCCESS, canaryProfileService.getCanaryDeliveryInfo(userId));
+    public ResponseEntity<ApiResponse<CanaryGetDeliveryInfoResponse>> getCanaryDeliveryInfo(
+            Principal principal
+    )
+    {
+        Long memberId = SecurityUtils.getCurrentUserId(principal);
+        System.out.println("memberId = " + memberId);
+        return ApiResponse.success(SuccessStatus.DELIVERY_INFO_GET_SUCCESS, canaryProfileService.getCanaryDeliveryInfo(memberId));
     }
 }

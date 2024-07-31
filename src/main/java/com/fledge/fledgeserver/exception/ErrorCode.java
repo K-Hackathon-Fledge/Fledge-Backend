@@ -32,8 +32,8 @@ public enum ErrorCode {
     DUPLICATE_APPLICATION(HttpStatus.CONFLICT, "이미 신청된 유저입니다."),
 
     // support
-    SUPPORT_NOT_FOUND(NOT_FOUND, "후원하기 게시글을 찾을 수 없습니다."),
-    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "후원하기 게시글에 대한 권한이 없습니다. 자립 준비 청소년 인증이 필요합니다.");
+    UNAUTHORIZED_REQUEST(UNAUTHORIZED, "권한이 없습니다."),
+    SUPPORT_NOT_FOUND(NOT_FOUND, "후원 요청 게시글을 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

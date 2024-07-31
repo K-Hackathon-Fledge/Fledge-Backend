@@ -21,6 +21,8 @@ public enum SuccessStatus {
      */
     CREATE_SUPPORT_SUCCESS(HttpStatus.CREATED, "후원하기 게시글 등록 성공"),
     GET_SUPPORT_SUCCESS(HttpStatus.OK, "후원하기 상세 페이지 조회 성공"),
+    GET_SUPPORT_FOR_UPDATE_SUCCESS(HttpStatus.OK, "수정을 위한 후원하기 조회 성공"),
+    UPDATE_SUPPORT_SUCCESS(HttpStatus.OK, "후원하기 게시글 업데이트 성공"),
 
     /**
      * canary

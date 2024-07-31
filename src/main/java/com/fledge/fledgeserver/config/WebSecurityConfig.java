@@ -56,7 +56,8 @@ public class WebSecurityConfig {
                                         new AntPathRequestMatcher("/actuator/health"),
                                         new AntPathRequestMatcher("/oauth2/authorization/**"),
                                         new AntPathRequestMatcher("/login/oauth2/code/**"),
-                                        new AntPathRequestMatcher("/oauth2/**")
+                                        new AntPathRequestMatcher("/oauth2/**"),
+                                        new AntPathRequestMatcher("/api/v1/supports/**")
                                 ).permitAll()
                 .anyRequest().authenticated()
                 )
@@ -82,7 +83,6 @@ public class WebSecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .requestMatchers("/error", "/favicon.ico", "/swagger-ui/**", "/api-docs/**");
-
     }
 
 

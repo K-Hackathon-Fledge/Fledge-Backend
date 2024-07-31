@@ -11,7 +11,6 @@ import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.exception.CustomException;
 import com.fledge.fledgeserver.exception.ErrorCode;
 import com.fledge.fledgeserver.member.entity.Member;
-import com.fledge.fledgeserver.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_FORBIDDEN;
 public class CanaryProfileService {
 
     private final CanaryProfileRepository canaryProfileRepository;
-    private final MemberRepository memberRepository;
 
     @Transactional
     public void createCanaryProfile(CanaryProfileRequest request, OAuthUserImpl oAuth2User) {
@@ -106,6 +104,7 @@ public class CanaryProfileService {
         CanaryProfile canary = canaryProfileRepository.findCanaryProfileByMemberId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
         return new CanaryGetDeliveryInfoResponse(
+                canary.getName(),
                 canary.getAddress(),
                 canary.getDetailAddress(),
                 canary.getZip(),
