@@ -1,5 +1,6 @@
 package com.fledge.fledgeserver.canary.controller;
 
+import com.fledge.fledgeserver.auth.dto.OAuthUserImpl;
 import com.fledge.fledgeserver.canary.dto.CanaryProfileRequest;
 import com.fledge.fledgeserver.canary.dto.CanaryProfileResponse;
 import com.fledge.fledgeserver.canary.dto.CanaryProfileUpdateRequest;
@@ -11,7 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,8 +34,8 @@ public class CanaryProfileController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "이미 신청한 유저")
     })
     public ResponseEntity<ApiResponse<Void>> applyForCanaryProfile(@Valid @RequestBody CanaryProfileRequest request,
-                                                                   @AuthenticationPrincipal UserDetails userDetails) {
-        canaryProfileService.createCanaryProfile(request, userDetails.getUsername());
+                                                                   @AuthenticationPrincipal OAuthUserImpl oAuth2User) {
+        canaryProfileService.createCanaryProfile(request, oAuth2User);
         return ApiResponse.success(SuccessStatus.PROFILE_APPLICATION_SUCCESS);
     }
 
@@ -43,8 +43,8 @@ public class CanaryProfileController {
     @GetMapping("/{userId}/status")
     public ResponseEntity<ApiResponse<Integer>> getApprovalStatus(
             @Parameter(description = "사용자 ID", required = true, example = "1") @PathVariable Long userId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        int status = canaryProfileService.getApprovalStatus(userId, userDetails.getUsername());
+            @AuthenticationPrincipal OAuthUserImpl oAuth2User) {
+        int status = canaryProfileService.getApprovalStatus(userId, oAuth2User);
         return ApiResponse.success(SuccessStatus.PROFILE_RETRIEVAL_SUCCESS, status);
     }
 
@@ -61,8 +61,8 @@ public class CanaryProfileController {
     public ResponseEntity<ApiResponse<CanaryProfileResponse>> updateCanaryProfile(
             @Parameter(description = "사용자 ID", required = true, example = "1") @PathVariable Long userId,
             @Valid @RequestBody CanaryProfileUpdateRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        CanaryProfileResponse response = canaryProfileService.updateCanaryProfile(userId, request, userDetails.getUsername());
+            @AuthenticationPrincipal OAuthUserImpl oAuth2User) {
+        CanaryProfileResponse response = canaryProfileService.updateCanaryProfile(userId, request, oAuth2User);
         return ApiResponse.success(SuccessStatus.PROFILE_UPDATE_SUCCESS, response);
     }
 }

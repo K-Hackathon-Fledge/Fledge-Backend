@@ -1,12 +1,14 @@
 package com.fledge.fledgeserver.auth.service;
 
+import java.util.Collections;
 import java.util.Map;
 
+import com.fledge.fledgeserver.auth.dto.OAuthUserImpl;
+import com.fledge.fledgeserver.auth.dto.OAuthAttributes;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.member.repository.MemberRepository;
-import com.fledge.fledgeserver.auth.dto.OAuth2UserInfo;
-import com.fledge.fledgeserver.auth.dto.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -28,15 +30,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
                 .getUserInfoEndpoint().getUserNameAttributeName();
 
-        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.of(registrationId, oAuth2UserAttributes);
-        Member member = getOrSave(oAuth2UserInfo);
+        OAuthAttributes oauthAttributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2UserAttributes);
+        Member member = getOrSave(oauthAttributes);
 
-        return new PrincipalDetails(member, oAuth2UserAttributes, userNameAttributeName);
+        return new OAuthUserImpl(Collections.singleton(new SimpleGrantedAuthority(member.getRole().getKey())),
+                oAuth2UserAttributes, oauthAttributes.getNameAttributeKey(), member);
     }
 
-    private Member getOrSave(OAuth2UserInfo oAuth2UserInfo) {
-        Member member = memberRepository.findBySocialId(oAuth2UserInfo.socialId())
-                .orElseGet(oAuth2UserInfo::toEntity);
+    private Member getOrSave(OAuthAttributes oauth2Attributes) {
+        Member member = memberRepository.findBySocialId(oauth2Attributes.getSocialId())
+                .orElseGet(oauth2Attributes::toEntity);
         return memberRepository.save(member);
     }
 }
