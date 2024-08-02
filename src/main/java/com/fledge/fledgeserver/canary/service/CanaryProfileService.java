@@ -1,10 +1,7 @@
 package com.fledge.fledgeserver.canary.service;
 
 import com.fledge.fledgeserver.auth.dto.OAuthUserImpl;
-import com.fledge.fledgeserver.canary.dto.CanaryGetDeliveryInfoResponse;
-import com.fledge.fledgeserver.canary.dto.CanaryProfileRequest;
-import com.fledge.fledgeserver.canary.dto.CanaryProfileResponse;
-import com.fledge.fledgeserver.canary.dto.CanaryProfileUpdateRequest;
+import com.fledge.fledgeserver.canary.dto.*;
 import com.fledge.fledgeserver.canary.entity.CanaryProfile;
 import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
 import com.fledge.fledgeserver.common.utils.SecurityUtils;
@@ -110,5 +107,13 @@ public class CanaryProfileService {
                 canary.getZip(),
                 canary.getPhone()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public CanaryProfileGetResponseDto getCanaryForSupport(Long memberId) {
+        CanaryProfile canaryProfile = canaryProfileRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
+
+        return new CanaryProfileGetResponseDto(canaryProfile);
     }
 }

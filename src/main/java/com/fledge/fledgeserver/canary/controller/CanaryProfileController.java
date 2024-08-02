@@ -1,15 +1,13 @@
 package com.fledge.fledgeserver.canary.controller;
 
 import com.fledge.fledgeserver.auth.dto.OAuthUserImpl;
-import com.fledge.fledgeserver.canary.dto.CanaryGetDeliveryInfoResponse;
-import com.fledge.fledgeserver.canary.dto.CanaryProfileRequest;
-import com.fledge.fledgeserver.canary.dto.CanaryProfileResponse;
-import com.fledge.fledgeserver.canary.dto.CanaryProfileUpdateRequest;
+import com.fledge.fledgeserver.canary.dto.*;
 import com.fledge.fledgeserver.canary.service.CanaryProfileService;
 import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.response.ApiResponse;
 import com.fledge.fledgeserver.response.SuccessStatus;
+import com.fledge.fledgeserver.support.dto.response.SupportGetResponseDto;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +20,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.security.Principal;
+
+import static com.fledge.fledgeserver.response.SuccessStatus.GET_SUPPORT_SUCCESS;
 
 @Tag(name = "자립준비청년 API", description = "자립준비청년 관리 관련 API")
 @RestController
@@ -71,6 +71,10 @@ public class CanaryProfileController {
         return ApiResponse.success(SuccessStatus.PROFILE_UPDATE_SUCCESS, response);
     }
 
+    /**
+     * 이하 API 후원하기 시에 필요
+     */
+
     @Operation(summary = "자립준비청년 배송지 정보 조회", description = "자립준비청년 후원글 작성 시 배송지 정보를 불러올 수 있습니다.")
     @GetMapping("/delivery")
     public ResponseEntity<ApiResponse<CanaryGetDeliveryInfoResponse>> getCanaryDeliveryInfo(
@@ -80,5 +84,14 @@ public class CanaryProfileController {
         Long memberId = SecurityUtils.getCurrentUserId(principal);
         System.out.println("memberId = " + memberId);
         return ApiResponse.success(SuccessStatus.DELIVERY_INFO_GET_SUCCESS, canaryProfileService.getCanaryDeliveryInfo(memberId));
+    }
+
+    @Operation(summary = "후원하기 게시글 조회 시 자립준비청년 프로필 조회", description = "후원하기 게시글에서 자립준비청년 프로필을 조회합니다.")
+    @GetMapping("/{memberId}/supports")
+    public ResponseEntity<ApiResponse<CanaryProfileGetResponseDto>> getSupport(
+            @PathVariable(value = "memberId") Long memberId
+    ) {
+        // TODO :: 자립준비청년이 완료한 챌린지 및 후원 인증 스토리 그리고 인증률도 함께 보여줘야함!
+        return ApiResponse.success(GET_SUPPORT_SUCCESS, canaryProfileService.getCanaryForSupport(memberId));
     }
 }
