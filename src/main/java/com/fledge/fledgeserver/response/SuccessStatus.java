@@ -20,13 +20,17 @@ public enum SuccessStatus {
      * support
      */
     CREATE_SUPPORT_SUCCESS(HttpStatus.CREATED, "후원하기 게시글 등록 성공"),
+    GET_SUPPORT_SUCCESS(HttpStatus.OK, "후원하기 상세 페이지 조회 성공"),
+    GET_SUPPORT_FOR_UPDATE_SUCCESS(HttpStatus.OK, "수정을 위한 후원하기 조회 성공"),
+    UPDATE_SUPPORT_SUCCESS(HttpStatus.OK, "후원하기 게시글 업데이트 성공"),
 
     /**
      * canary
      */
     PROFILE_APPLICATION_SUCCESS(HttpStatus.OK, "프로필 신청 성공"),
     PROFILE_RETRIEVAL_SUCCESS(HttpStatus.OK, "프로필 조회 성공"),
-    PROFILE_UPDATE_SUCCESS(HttpStatus.NO_CONTENT, "프로필 수정 성공");
+    PROFILE_UPDATE_SUCCESS(HttpStatus.NO_CONTENT, "프로필 수정 성공"),
+    DELIVERY_INFO_GET_SUCCESS(HttpStatus.OK, "배송지 조회 성공");
 
 
     private final HttpStatus httpStatus;

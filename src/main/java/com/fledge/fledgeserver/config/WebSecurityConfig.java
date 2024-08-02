@@ -78,11 +78,10 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-        @Bean
+    @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .requestMatchers("/error", "/favicon.ico", "/swagger-ui/**", "/api-docs/**");
-
     }
 
 

@@ -1,20 +1,18 @@
 package com.fledge.fledgeserver.canary.service;
 
-import com.fledge.fledgeserver.canary.dto.CanaryProfileRequest;
-import com.fledge.fledgeserver.canary.dto.CanaryProfileResponse;
-import com.fledge.fledgeserver.canary.dto.CanaryProfileUpdateRequest;
+import com.fledge.fledgeserver.auth.dto.OAuthUserImpl;
+import com.fledge.fledgeserver.canary.dto.*;
 import com.fledge.fledgeserver.canary.entity.CanaryProfile;
 import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
+import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.exception.CustomException;
 import com.fledge.fledgeserver.exception.ErrorCode;
 import com.fledge.fledgeserver.member.entity.Member;
-import com.fledge.fledgeserver.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_FORBIDDEN;
-import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_NOT_FOUND;
 
 
 @Service
@@ -22,11 +20,10 @@ import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_NOT_FOUND;
 public class CanaryProfileService {
 
     private final CanaryProfileRepository canaryProfileRepository;
-    private final MemberRepository memberRepository;
 
     @Transactional
-    public void createCanaryProfile(CanaryProfileRequest request, String currentUserEmail) {
-        Member member = authenticateAndAuthorize(currentUserEmail, request.getUserId());
+    public void createCanaryProfile(CanaryProfileRequest request, OAuthUserImpl oAuth2User) {
+        Member member = authenticateAndAuthorize(oAuth2User, request.getUserId());
 
         boolean exists = canaryProfileRepository.existsByMember(member);
         if (exists) {
@@ -51,8 +48,8 @@ public class CanaryProfileService {
     }
 
     @Transactional(readOnly = true)
-    public int getApprovalStatus(Long userId, String currentUserEmail) {
-        authenticateAndAuthorize(currentUserEmail, userId);
+    public int getApprovalStatus(Long userId, OAuthUserImpl oAuth2User) {
+        authenticateAndAuthorize(oAuth2User, userId);
 
         CanaryProfile canaryProfile = canaryProfileRepository.findByMemberId(userId)
                 .orElse(null);
@@ -75,8 +72,8 @@ public class CanaryProfileService {
     }
 
     @Transactional
-    public CanaryProfileResponse updateCanaryProfile(Long userId, CanaryProfileUpdateRequest request, String currentUserEmail) {
-        authenticateAndAuthorize(currentUserEmail, userId);
+    public CanaryProfileResponse updateCanaryProfile(Long userId, CanaryProfileUpdateRequest request, OAuthUserImpl oAuth2User) {
+        authenticateAndAuthorize(oAuth2User, userId);
 
         CanaryProfile existingProfile = canaryProfileRepository.findByMemberId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
@@ -89,14 +86,34 @@ public class CanaryProfileService {
     }
 
 
-    private Member authenticateAndAuthorize(String currentUserEmail, Long userId) {
-        Member member = memberRepository.findByEmailAndActiveTrue(currentUserEmail)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+    private Member authenticateAndAuthorize(OAuthUserImpl oAuth2User, Long userId) {
+        Member member = SecurityUtils.getCurrentMember(oAuth2User);
 
         if (member.getId() != userId) {
             throw new CustomException(MEMBER_FORBIDDEN);
         }
 
         return member;
+    }
+
+    @Transactional(readOnly = true)
+    public CanaryGetDeliveryInfoResponse getCanaryDeliveryInfo(Long userId) {
+        CanaryProfile canary = canaryProfileRepository.findCanaryProfileByMemberId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
+        return new CanaryGetDeliveryInfoResponse(
+                canary.getName(),
+                canary.getAddress(),
+                canary.getDetailAddress(),
+                canary.getZip(),
+                canary.getPhone()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public CanaryProfileGetResponseDto getCanaryForSupport(Long memberId) {
+        CanaryProfile canaryProfile = canaryProfileRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
+
+        return new CanaryProfileGetResponseDto(canaryProfile);
     }
 }

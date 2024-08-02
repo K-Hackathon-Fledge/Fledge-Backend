@@ -15,6 +15,11 @@ import java.util.Date;
 @Schema(description = "자립준비청년 프로필 수정 요청 DTO")
 public class CanaryProfileUpdateRequest {
 
+    @Schema(description = "실명", required = true, example = "홍길동")
+    @NotBlank(message = "실명은 필수입니다.")
+    @Size(max = 10, message = "실명은 최대 10자까지 입력 가능합니다.")
+    private String name;
+
     @Schema(description = "전화번호", required = true, example = "010-1234-5678")
     @NotBlank(message = "전화번호는 필수입니다.")
     @Size(max = 20, message = "전화번호는 최대 20자까지 입력 가능합니다.")
