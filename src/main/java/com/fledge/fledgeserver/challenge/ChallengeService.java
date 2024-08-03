@@ -3,6 +3,9 @@ package com.fledge.fledgeserver.challenge;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeCategory;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeType;
 import com.fledge.fledgeserver.challenge.dto.ChallengeResponse;
+import com.fledge.fledgeserver.challenge.entity.Challenge;
+import com.fledge.fledgeserver.challenge.entity.OrganizationChallenge;
+import com.fledge.fledgeserver.challenge.entity.PartnershipChallenge;
 import com.fledge.fledgeserver.exception.CustomException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,6 +54,29 @@ public class ChallengeService {
                 challenge.getDescription(),
                 (double) challenge.getSuccessCount() / challenge.getParticipantCount(),
                 challenge.getParticipantCount()
+        ));
+    }
+
+    public Page<ChallengeResponse> getPartnershipAndOrganizationChallenges(int page, int size, List<ChallengeCategory> categories) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "registrationDate"));
+
+        Page<Challenge> challenges;
+        if (categories != null && !categories.isEmpty()) {
+            challenges = challengeRepository.findByTypeInAndCategoriesIn(List.of(ChallengeType.PARTNERSHIP, ChallengeType.ORGANIZATION), categories, pageable);
+        } else {
+            challenges = challengeRepository.findByTypeIn(List.of(ChallengeType.PARTNERSHIP, ChallengeType.ORGANIZATION), pageable);
+        }
+
+        return challenges.map(challenge -> new ChallengeResponse(
+                challenge.getTitle(),
+                challenge.getLikeCount(),
+                challenge.getCategories(),
+                challenge.getDescription(),
+                (double) challenge.getSuccessCount() / challenge.getParticipantCount(),
+                challenge.getParticipantCount(),
+                challenge instanceof PartnershipChallenge ? ((PartnershipChallenge) challenge).getSupportContent() : ((OrganizationChallenge) challenge).getSupportContent(),
+                challenge instanceof PartnershipChallenge ? ((PartnershipChallenge) challenge).getStartDate() : ((OrganizationChallenge) challenge).getStartDate(),
+                challenge instanceof PartnershipChallenge ? ((PartnershipChallenge) challenge).getEndDate() : ((OrganizationChallenge) challenge).getEndDate()
         ));
     }
 }

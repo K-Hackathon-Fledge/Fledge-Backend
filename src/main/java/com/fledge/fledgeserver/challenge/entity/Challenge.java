@@ -1,4 +1,4 @@
-package com.fledge.fledgeserver.challenge;
+package com.fledge.fledgeserver.challenge.entity;
 
 import com.fledge.fledgeserver.challenge.Enum.ChallengeCategory;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeType;
@@ -11,6 +11,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type")
 public class Challenge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,10 +33,22 @@ public class Challenge {
     private int successCount;
 
     @Enumerated(EnumType.STRING)
+    @Column(insertable = false, updatable = false)
     private ChallengeType type;
 
     private LocalDate registrationDate;
 
     private int likeCount;
 
+    public Challenge(String title, List<ChallengeCategory> categories, String description, int participantCount,
+                     int successCount, ChallengeType type, LocalDate registrationDate, int likeCount) {
+        this.title = title;
+        this.categories = categories;
+        this.description = description;
+        this.participantCount = participantCount;
+        this.successCount = successCount;
+        this.type = type;
+        this.registrationDate = registrationDate;
+        this.likeCount = likeCount;
+    }
 }

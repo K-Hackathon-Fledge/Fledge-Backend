@@ -43,6 +43,20 @@ public class ChallengeController {
         return ApiResponse.success(SuccessStatus.CHALLENGE_RETRIEVAL_SUCCESS, challengeResponses);
     }
 
+    @Operation(summary = "연계챌린지 조회", description = "PARTNERSHIP 및 ORGANIZATION 타입의 챌린지를 조회합니다.")
+    @GetMapping("/partnership-and-organization")
+    public ResponseEntity<ApiResponse<Page<ChallengeResponse>>> getPartnershipAndOrganizationChallenges(
+            @Parameter(example = "0")
+            @RequestParam int page,
+            @Parameter(example = "8")
+            @RequestParam int size,
+            @RequestParam(required = false) List<ChallengeCategory> categories) {
+
+        Page<ChallengeResponse> challengeResponses = challengeService.getPartnershipAndOrganizationChallenges(page, size, categories);
+
+        return ApiResponse.success(SuccessStatus.CHALLENGE_RETRIEVAL_SUCCESS, challengeResponses);
+    }
+
 }
 
 
