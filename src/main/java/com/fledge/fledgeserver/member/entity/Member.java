@@ -48,17 +48,22 @@ public class Member extends BaseTimeEntity {
 
 
     @Builder
-    public Member(Long socialId, String nickname, String email, String profile, Role role, String registerType) {
+    public Member(Long socialId, String nickname, String email, String profile, Role role, String registerType, Boolean active) {
         this.socialId = socialId;
         this.nickname = nickname;
         this.email = email;
         this.profile = profile;
         this.role = role;
         this.registerType = registerType;
+        this.active = active;
     }
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void withdrawMember() {
+        this.active = false;
     }
 
 }

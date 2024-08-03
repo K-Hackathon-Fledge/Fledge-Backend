@@ -64,6 +64,7 @@ public class OAuthAttributes {
                 .profile(profile)
                 .role(Role.USER)
                 .registerType("KAKAO")
+                .active(true)
                 .build();
     }
 

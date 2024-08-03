@@ -32,6 +32,7 @@ public class CanaryProfileService {
 
         CanaryProfile canaryProfile = CanaryProfile.builder()
                 .member(member)
+                .name(request.getName())
                 .phone(request.getPhone())
                 .birth(request.getBirth())
                 .gender(request.getGender())
