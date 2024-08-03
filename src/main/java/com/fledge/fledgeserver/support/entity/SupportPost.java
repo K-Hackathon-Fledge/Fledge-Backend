@@ -3,7 +3,7 @@ package com.fledge.fledgeserver.support.entity;
 import com.fledge.fledgeserver.common.entity.BaseTimeEntity;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.promise.entity.Promise;
-import com.fledge.fledgeserver.support.dto.request.SupportCreateRequestDto;
+import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequestDto;
 import com.fledge.fledgeserver.support.dto.request.SupportUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -94,31 +94,31 @@ public class SupportPost extends BaseTimeEntity {
     // TODO :: 챌린지 구현 후 참여 중이거나 완료한 챌린지(뱃지)에 대한 로직 추가
 
     @Builder
-    public SupportPost(Member member, SupportCreateRequestDto supportCreateRequestDto) {
+    public SupportPost(Member member, SupportPostCreateRequestDto supportPostCreateRequestDto) {
         this.member = member;
-        this.title = supportCreateRequestDto.getTitle();
-        this.reason = supportCreateRequestDto.getReason();
-        this.item = supportCreateRequestDto.getItem();
-        this.purchaseUrl = supportCreateRequestDto.getPurchaseUrl();
-        this.price = supportCreateRequestDto.getPrice();
-        this.expirationDate = supportCreateRequestDto.getExpirationDate();
-        this.promise = Promise.valueOf(supportCreateRequestDto.getPromise());
-        this.supportCategory = SupportCategory.valueOf(supportCreateRequestDto.getSupportCategory());
+        this.title = supportPostCreateRequestDto.getTitle();
+        this.reason = supportPostCreateRequestDto.getReason();
+        this.item = supportPostCreateRequestDto.getItem();
+        this.purchaseUrl = supportPostCreateRequestDto.getPurchaseUrl();
+        this.price = supportPostCreateRequestDto.getPrice();
+        this.expirationDate = supportPostCreateRequestDto.getExpirationDate();
+        this.promise = Promise.valueOf(supportPostCreateRequestDto.getPromise());
+        this.supportCategory = SupportCategory.valueOf(supportPostCreateRequestDto.getSupportCategory());
 
         if ("MEDICAL".equals(supportCategory.name()) || "LEGAL_AID".equals(supportCategory.name())) {
-            this.bank = supportCreateRequestDto.getBank();
-            this.account = supportCreateRequestDto.getAccount();
+            this.bank = supportPostCreateRequestDto.getBank();
+            this.account = supportPostCreateRequestDto.getAccount();
             this.recipientName = null;
             this.phone = null;
             this.address = null;
             this.detailAddress = null;
             this.zip = null;
         } else {
-            this.recipientName = supportCreateRequestDto.getRecipientName();
-            this.phone = supportCreateRequestDto.getPhone();
-            this.address = supportCreateRequestDto.getAddress();
-            this.detailAddress = supportCreateRequestDto.getDetailAddress();
-            this.zip = supportCreateRequestDto.getZip();
+            this.recipientName = supportPostCreateRequestDto.getRecipientName();
+            this.phone = supportPostCreateRequestDto.getPhone();
+            this.address = supportPostCreateRequestDto.getAddress();
+            this.detailAddress = supportPostCreateRequestDto.getDetailAddress();
+            this.zip = supportPostCreateRequestDto.getZip();
             this.bank = null;
             this.account = null;
         }

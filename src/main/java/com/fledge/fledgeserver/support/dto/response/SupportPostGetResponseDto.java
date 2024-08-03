@@ -7,10 +7,11 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Schema(description = "후원하기 게시글 조회 DTO")
-public class SupportGetResponseDto {
+public class SupportPostGetResponseDto {
 
     @Schema(description = "멤버 식별자(프로필 팝업 띄우기)", example = "2")
     private Long memberId;
@@ -43,7 +44,10 @@ public class SupportGetResponseDto {
     @Schema(description = "후원 만료 시점", example = "2024-07-31")
     private String expirationDate;
 
-    public SupportGetResponseDto(Long memberId, String nickname, String title, String reason, String item, String purchaseUrl, int price, List<String> images, LocalDate expirationDate) {
+    @Schema(description = "후원자 리스트(후원자 + 금액)", example = "[{\"라이언고슬밥\": 10000}, {\"명륜진샤오미\": 20000}]")
+    private List<Map<String, Integer>> supporterList;
+
+    public SupportPostGetResponseDto(Long memberId, String nickname, String title, String reason, String item, String purchaseUrl, int price, List<String> images, LocalDate expirationDate, List<Map<String, Integer>> supporterList) {
         this.memberId = memberId;
         this.nickname = nickname;
         this.title = title;
@@ -54,5 +58,6 @@ public class SupportGetResponseDto {
         this.images = images;
         this.leftDays = String.valueOf(ChronoUnit.DAYS.between(LocalDate.now(), expirationDate));
         this.expirationDate = TimeUtils.refineToDate(expirationDate);
+        this.supporterList = supporterList;
     }
 }

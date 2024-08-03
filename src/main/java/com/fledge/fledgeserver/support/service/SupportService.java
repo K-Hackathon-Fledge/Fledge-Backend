@@ -1,6 +1,5 @@
 package com.fledge.fledgeserver.support.service;
 
-import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
 import com.fledge.fledgeserver.exception.CustomException;
 import com.fledge.fledgeserver.exception.ErrorCode;
 import com.fledge.fledgeserver.file.FileService;
@@ -8,17 +7,21 @@ import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.member.entity.Role;
 import com.fledge.fledgeserver.member.repository.MemberRepository;
 import com.fledge.fledgeserver.support.dto.request.SupportRecordCreateRequestDto;
-import com.fledge.fledgeserver.support.dto.request.SupportCreateRequestDto;
-import com.fledge.fledgeserver.support.dto.response.SupportGetResponseDto;
+import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequestDto;
+import com.fledge.fledgeserver.support.dto.response.SupportPostGetResponseDto;
+import com.fledge.fledgeserver.support.dto.response.SupportRecordProgressGetResponseDto;
 import com.fledge.fledgeserver.support.entity.SupportPost;
 import com.fledge.fledgeserver.support.entity.SupportImage;
 import com.fledge.fledgeserver.support.entity.SupportRecord;
-import com.fledge.fledgeserver.support.repository.SupportImageRepository;
 import com.fledge.fledgeserver.support.repository.SupportRecordRepository;
 import com.fledge.fledgeserver.support.repository.SupportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +32,7 @@ public class SupportService {
     private final SupportRecordRepository supportRecordRepository;
 
     @Transactional
-    public void createSupport(Long memberId, SupportCreateRequestDto supportCreateRequestDto) {
+    public void createSupport(Long memberId, SupportPostCreateRequestDto supportPostCreateRequestDto) {
         Member member = memberRepository.findMemberById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -39,11 +42,11 @@ public class SupportService {
 
         SupportPost supportPost = SupportPost.builder()
                 .member(member)
-                .supportCreateRequestDto(supportCreateRequestDto)
+                .supportPostCreateRequestDto(supportPostCreateRequestDto)
                 .build();
         supportRepository.save(supportPost);
 
-        for (String imageUrl : supportCreateRequestDto.getImages()) {
+        for (String imageUrl : supportPostCreateRequestDto.getImages()) {
             SupportImage supportImage = SupportImage.builder()
                     .supportPost(supportPost)
                     .imageUrl(imageUrl)
@@ -53,11 +56,22 @@ public class SupportService {
     }
 
     @Transactional(readOnly = true)
-    public SupportGetResponseDto getSupport(Long supportId) {
+    public SupportPostGetResponseDto getSupport(Long supportId) {
         SupportPost supportPost = supportRepository.findSupportByIdWithFetch(supportId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
 
-        return new SupportGetResponseDto(
+        List<SupportRecord> supportRecords = supportRecordRepository.findAllBySupportPost(supportPost);
+
+        List<Map<String, Integer>> supporterList = supportRecords.stream()
+                .collect(Collectors.groupingBy(
+                        record -> record.getMember().getNickname(), // 후원자 닉네임
+                        Collectors.summingInt(SupportRecord::getAmount) // 해당 닉네임의 총 후원 금액
+                ))
+                .entrySet().stream() // Map.Entry로 변환
+                .map(entry -> Map.of(entry.getKey(), entry.getValue())) // 각 엔트리를 Map으로 변환
+                .collect(Collectors.toList()); // 최종 리스트로 수집
+
+        return new SupportPostGetResponseDto(
                 supportPost.getMember().getId(),
                 supportPost.getMember().getNickname(),
                 supportPost.getTitle(),
@@ -69,7 +83,8 @@ public class SupportService {
                 supportPost.getImages().stream()
                         .map(supportImage -> fileService.getFileUrl(supportImage.getImageUrl()))
                         .toList(),
-                supportPost.getExpirationDate()
+                supportPost.getExpirationDate(),
+                supporterList
         );
     }
 
@@ -93,6 +108,22 @@ public class SupportService {
         supportPost.support();
     }
 
+    @Transactional(readOnly = true)
+    public SupportRecordProgressGetResponseDto getSupportProgress(Long supportId) {
+        SupportPost supportPost = supportRepository.findSupportByIdWithFetch(supportId)
+                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
+
+        List<SupportRecord> supportRecords = supportRecordRepository.findAllBySupportPost(supportPost);
+
+        int totalPrice = supportPost.getPrice();
+
+        // supportPrice: 지원 기록에서 총 지원 금액을 합산
+        int supportPrice = supportRecords.stream()
+                .mapToInt(SupportRecord::getAmount)
+                .sum();
+
+        return new SupportRecordProgressGetResponseDto(totalPrice, supportPrice);
+    }
 //    public SupportGetForUpdateResponseDto getSupportForUpdate(Long memberId, Long supportId) {
 //        Support support = supportRepository.findSupportByIdWithFetch(supportId)
 //                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));

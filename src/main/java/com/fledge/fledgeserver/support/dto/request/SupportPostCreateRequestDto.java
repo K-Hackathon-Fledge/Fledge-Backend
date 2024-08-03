@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @Schema(description = "후원하기 게시글 생성 DTO")
-public class SupportCreateRequestDto {
+public class SupportPostCreateRequestDto {
 
     @Schema(description = "후원 게시글 제목", required = true, example = "후원 요청")
     @NotBlank(message = "제목은 필수입니다.")
