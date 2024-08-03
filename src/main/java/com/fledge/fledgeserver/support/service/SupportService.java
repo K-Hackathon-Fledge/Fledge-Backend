@@ -92,6 +92,16 @@ public class SupportService {
     public void createSupportRecord(Long supportId, SupportRecordCreateRequest supportRecordCreateRequest, Long memberId) {
         Member member = memberRepository.findMemberByIdOrThrow(memberId); // 후원자
         SupportPost supportPost = supportRepository.findSupportByIdOrThrow(supportId); // 게시글
+        int amount = supportRecordCreateRequest.getAmount();
+        List<SupportRecord> supportRecords = supportRecordRepository.findAllBySupportPost(supportPost);
+        int beforeSupportPrice = supportRecords.stream()
+                .mapToInt(SupportRecord::getAmount)
+                .sum();
+
+        // 검증 로직 (이번 후원 금액으로 후원 물품 가격 초과인 경우 예외 처리)
+        if (amount + beforeSupportPrice > supportPost.getPrice()) {
+            throw new CustomException(ErrorCode.OVER_SUPPORT_PRICE);
+        }
 
         // 후원 내역 기록
         SupportRecord supportRecord = SupportRecord.builder()
@@ -100,7 +110,7 @@ public class SupportService {
                 .bankName(supportRecordCreateRequest.getBankName())
                 .bankCode(supportRecordCreateRequest.getBankCode())
                 .account(supportRecordCreateRequest.getAccount())
-                .amount(supportRecordCreateRequest.getAmount())
+                .amount(amount)
                 .build();
         supportRecordRepository.save(supportRecord);
 
