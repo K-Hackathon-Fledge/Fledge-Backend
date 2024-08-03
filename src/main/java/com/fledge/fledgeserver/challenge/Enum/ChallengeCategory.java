@@ -1,0 +1,7 @@
+package com.fledge.fledgeserver.challenge.Enum;
+
+
+public enum ChallengeCategory {
+    LIFE, RESIDENCE, FINANCIAL_MANAGEMENT, EMPLOYMENT, LEARNING, SELF_DEVELOPMENT,
+    WELLBEING, CERTIFICATION, MIND_CONTROL, NETWORKING, TIME_MANAGEMENT
+}

@@ -30,7 +30,12 @@ public enum SuccessStatus {
     PROFILE_APPLICATION_SUCCESS(HttpStatus.OK, "프로필 신청 성공"),
     PROFILE_RETRIEVAL_SUCCESS(HttpStatus.OK, "프로필 조회 성공"),
     PROFILE_UPDATE_SUCCESS(HttpStatus.NO_CONTENT, "프로필 수정 성공"),
-    DELIVERY_INFO_GET_SUCCESS(HttpStatus.OK, "배송지 조회 성공");
+    DELIVERY_INFO_GET_SUCCESS(HttpStatus.OK, "배송지 조회 성공"),
+
+    /**
+     * challenge
+     */
+    CHALLENGE_RETRIEVAL_SUCCESS(HttpStatus.OK, "챌린지 조회 성공");
 
 
     private final HttpStatus httpStatus;

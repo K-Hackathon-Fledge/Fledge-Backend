@@ -19,6 +19,11 @@ public class CanaryProfileRequest {
     @NotNull(message = "User ID는 필수입니다.")
     private Long userId;
 
+    @Schema(description = "이름", required = true, example = "홍길동")
+    @NotBlank(message = "이름은 필수입니다.")
+    @Size(max = 20, message = "이름은 최대 20자까지 입력 가능합니다.")
+    private String name;
+
     @Schema(description = "전화번호", required = true, example = "010-1234-5678")
     @NotBlank(message = "전화번호는 필수입니다.")
     @Size(max = 255, message = "전화번호는 최대 255자까지 입력 가능합니다.")
