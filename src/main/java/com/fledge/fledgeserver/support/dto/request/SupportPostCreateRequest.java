@@ -1,10 +1,7 @@
 package com.fledge.fledgeserver.support.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
@@ -14,8 +11,8 @@ import java.util.List;
 
 @Getter
 @Setter
-@Schema(description = "후원하기 게시글 수정 DTO")
-public class SupportUpdateRequestDto {
+@Schema(description = "후원하기 게시글 생성 DTO")
+public class SupportPostCreateRequest {
 
     @Schema(description = "후원 게시글 제목", required = true, example = "후원 요청")
     @NotBlank(message = "제목은 필수입니다.")
@@ -26,6 +23,12 @@ public class SupportUpdateRequestDto {
     @NotBlank(message = "후원 사유는 필수입니다.")
     @Size(max = 500, message = "후원 사유는 최대 500자까지 입력 가능합니다.")
     private String reason;
+
+    @Schema(description = "후원자의 약속", required = true, example = "ONCE")
+    @NotBlank(message = "후원자의 약속은 필수입니다.")
+    @Pattern(regexp = "ONCE|WEEKLY|MONTHLY",
+            message = "후원자의 약속은 ONCE, WEEKLY, MONTHLY 중 하나여야 합니다.")
+    private String promise;
 
     @Schema(description = "후원 물품 명", required = true, example = "노트북")
     @NotBlank(message = "후원 물품 명은 필수입니다.")
@@ -45,38 +48,37 @@ public class SupportUpdateRequestDto {
     @Schema(description = "후원 물품 이미지 리스트", required = true)
     private List<String> images;
 
-    @Schema(description = "후원 인증 기간", required = true, example = "30")
-    @NotBlank(message = "후원 인증 기간은 필수입니다.")
-    @Positive(message = "후원 인증 기간은 0보다 큰 값이어야 합니다.")
-    private int checkPeriod;
-
-    @Schema(description = "후원 인증 횟수", required = true, example = "1")
-    @NotBlank(message = "후원 인증 횟수는 필수입니다.")
-    @Positive(message = "후원 인증 횟수는 0보다 큰 값이어야 합니다.")
-    private int checkCount;
-
     @Schema(description = "만료 시점", required = true, example = "2024-12-31")
     @NotBlank(message = "만료 시점은 필수입니다.")
     @Future(message = "만료 시점은 현재 시간 이후여야 합니다.")
     private LocalDate expirationDate;
 
-    @Schema(description = "수령인 이름", required = true, example = "홍길동")
-    @NotBlank(message = "수령인 이름은 필수입니다.")
+    @Schema(description = "후원 카테고리", example = "FOOD")
+    @NotBlank(message = "후원 카테고리는 필수입니다.")
+    @Pattern(regexp = "DAILY_NECESSITY|FOOD|HOME_APPLIANCES|EDUCATION|MEDICAL|LEGAL_AID|ETC",
+            message = "후원 카테고리는 DAILY_NECESSITY, FOOD, HOME_APPLIANCES, EDUCATION, MEDICAL, LEGAL_AID, ETC 중 하나여야 합니다.")
+    private String supportCategory;
+
+    // MEDICAL, LEGAL_AID인 겨우
+    @Schema(description = "은행명", example = "카카오뱅크")
+    private String bank;
+
+    @Schema(description = "은행 계좌번호", example = "1234-12-1234-12")
+    private String account;
+
+    // DAILY_NECESSITY, FOOD, HOME_APPLIANCES, EDUCATION, ETC인 경우
+    @Schema(description = "수령인 이름", example = "홍길동")
     private String recipientName;
 
-    @Schema(description = "전화번호", required = true, example = "010-1234-5678")
-    @NotBlank(message = "전화번호는 필수입니다.")
+    @Schema(description = "전화번호", example = "010-1234-5678")
     private String phone;
 
-    @Schema(description = "주소", required = true, example = "서울특별시 노원구 공릉로232")
-    @NotBlank(message = "주소는 필수입니다.")
+    @Schema(description = "주소", example = "서울특별시 노원구 공릉로232")
     private String address;
 
-    @Schema(description = "상세 주소", required = true, example = "OO빌라 101호")
-    @NotBlank(message = "상세 주소는 필수입니다.")
+    @Schema(description = "상세 주소", example = "OO빌라 101호")
     private String detailAddress;
 
-    @Schema(description = "우편번호", required = true, example = "123456")
-    @NotBlank(message = "우편번호는 필수입니다.")
+    @Schema(description = "우편번호", example = "123456")
     private String zip;
 }

@@ -6,10 +6,10 @@ import com.fledge.fledgeserver.file.FileService;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.member.entity.Role;
 import com.fledge.fledgeserver.member.repository.MemberRepository;
-import com.fledge.fledgeserver.support.dto.request.SupportRecordCreateRequestDto;
-import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequestDto;
-import com.fledge.fledgeserver.support.dto.response.SupportPostGetResponseDto;
-import com.fledge.fledgeserver.support.dto.response.SupportRecordProgressGetResponseDto;
+import com.fledge.fledgeserver.support.dto.request.SupportRecordCreateRequest;
+import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequest;
+import com.fledge.fledgeserver.support.dto.response.SupportPostGetResponse;
+import com.fledge.fledgeserver.support.dto.response.SupportRecordProgressGetResponse;
 import com.fledge.fledgeserver.support.entity.SupportPost;
 import com.fledge.fledgeserver.support.entity.SupportImage;
 import com.fledge.fledgeserver.support.entity.SupportRecord;
@@ -32,7 +32,7 @@ public class SupportService {
     private final SupportRecordRepository supportRecordRepository;
 
     @Transactional
-    public void createSupport(Long memberId, SupportPostCreateRequestDto supportPostCreateRequestDto) {
+    public void createSupport(Long memberId, SupportPostCreateRequest supportPostCreateRequest) {
         Member member = memberRepository.findMemberById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -42,11 +42,11 @@ public class SupportService {
 
         SupportPost supportPost = SupportPost.builder()
                 .member(member)
-                .supportPostCreateRequestDto(supportPostCreateRequestDto)
+                .supportPostCreateRequest(supportPostCreateRequest)
                 .build();
         supportRepository.save(supportPost);
 
-        for (String imageUrl : supportPostCreateRequestDto.getImages()) {
+        for (String imageUrl : supportPostCreateRequest.getImages()) {
             SupportImage supportImage = SupportImage.builder()
                     .supportPost(supportPost)
                     .imageUrl(imageUrl)
@@ -56,7 +56,7 @@ public class SupportService {
     }
 
     @Transactional(readOnly = true)
-    public SupportPostGetResponseDto getSupport(Long supportId) {
+    public SupportPostGetResponse getSupport(Long supportId) {
         SupportPost supportPost = supportRepository.findSupportByIdWithFetch(supportId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
 
@@ -71,7 +71,7 @@ public class SupportService {
                 .map(entry -> Map.of(entry.getKey(), entry.getValue())) // 각 엔트리를 Map으로 변환
                 .collect(Collectors.toList()); // 최종 리스트로 수집
 
-        return new SupportPostGetResponseDto(
+        return new SupportPostGetResponse(
                 supportPost.getMember().getId(),
                 supportPost.getMember().getNickname(),
                 supportPost.getTitle(),
@@ -89,7 +89,7 @@ public class SupportService {
     }
 
     @Transactional
-    public void createSupportRecord(Long supportId, SupportRecordCreateRequestDto supportRecordCreateRequestDto, Long memberId) {
+    public void createSupportRecord(Long supportId, SupportRecordCreateRequest supportRecordCreateRequest, Long memberId) {
         Member member = memberRepository.findMemberByIdOrThrow(memberId); // 후원자
         SupportPost supportPost = supportRepository.findSupportByIdOrThrow(supportId); // 게시글
 
@@ -97,10 +97,10 @@ public class SupportService {
         SupportRecord supportRecord = SupportRecord.builder()
                 .member(member)
                 .supportPost(supportPost)
-                .bankName(supportRecordCreateRequestDto.getBankName())
-                .bankCode(supportRecordCreateRequestDto.getBankCode())
-                .account(supportRecordCreateRequestDto.getAccount())
-                .amount(supportRecordCreateRequestDto.getAmount())
+                .bankName(supportRecordCreateRequest.getBankName())
+                .bankCode(supportRecordCreateRequest.getBankCode())
+                .account(supportRecordCreateRequest.getAccount())
+                .amount(supportRecordCreateRequest.getAmount())
                 .build();
         supportRecordRepository.save(supportRecord);
 
@@ -109,7 +109,7 @@ public class SupportService {
     }
 
     @Transactional(readOnly = true)
-    public SupportRecordProgressGetResponseDto getSupportProgress(Long supportId) {
+    public SupportRecordProgressGetResponse getSupportProgress(Long supportId) {
         SupportPost supportPost = supportRepository.findSupportByIdWithFetch(supportId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
 
@@ -122,9 +122,9 @@ public class SupportService {
                 .mapToInt(SupportRecord::getAmount)
                 .sum();
 
-        return new SupportRecordProgressGetResponseDto(totalPrice, supportPrice);
+        return new SupportRecordProgressGetResponse(totalPrice, supportPrice);
     }
-//    public SupportGetForUpdateResponseDto getSupportForUpdate(Long memberId, Long supportId) {
+//    public SupportGetForUpdateResponse getSupportForUpdate(Long memberId, Long supportId) {
 //        Support support = supportRepository.findSupportByIdWithFetch(supportId)
 //                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
 //
@@ -137,7 +137,7 @@ public class SupportService {
 //                .map(supportImage -> fileService.getFileUrl(supportImage.getImageUrl()))
 //                .toList();
 //
-//        return new SupportGetForUpdateResponseDto(
+//        return new SupportGetForUpdateResponse(
 //                support.getMember().getId(),
 //                support.getMember().getNickname(),
 //                support.getTitle(),
@@ -152,7 +152,7 @@ public class SupportService {
 //        );
 //    }
 //
-//    public void updateSupport(Long memberId, Long supportId, SupportUpdateRequestDto supportUpdateRequestDto) {
+//    public void updateSupport(Long memberId, Long supportId, SupportUpdateRequest supportUpdateRequestDto) {
 //        Support support = supportRepository.findSupportByIdWithFetch(supportId)
 //                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
 //
