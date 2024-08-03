@@ -2,11 +2,10 @@ package com.fledge.fledgeserver.support.controller;
 
 import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.response.ApiResponse;
-import com.fledge.fledgeserver.response.SuccessStatus;
-import com.fledge.fledgeserver.support.dto.request.SupportCreateRequestDto;
-import com.fledge.fledgeserver.support.dto.request.SupportUpdateRequestDto;
-import com.fledge.fledgeserver.support.dto.response.SupportGetForUpdateResponseDto;
-import com.fledge.fledgeserver.support.dto.response.SupportGetResponseDto;
+import com.fledge.fledgeserver.support.dto.request.SupportRecordCreateRequestDto;
+import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequestDto;
+import com.fledge.fledgeserver.support.dto.response.SupportPostGetResponseDto;
+import com.fledge.fledgeserver.support.dto.response.SupportRecordProgressGetResponseDto;
 import com.fledge.fledgeserver.support.service.SupportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,8 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
-import static com.fledge.fledgeserver.response.SuccessStatus.CREATE_SUPPORT_SUCCESS;
-import static com.fledge.fledgeserver.response.SuccessStatus.GET_SUPPORT_SUCCESS;
+import static com.fledge.fledgeserver.response.SuccessStatus.*;
 
 @Tag(name = "후원하기 API", description = "후원하기와 관련된 API")
 @RestController
@@ -25,36 +23,53 @@ import static com.fledge.fledgeserver.response.SuccessStatus.GET_SUPPORT_SUCCESS
 @RequiredArgsConstructor
 public class SupportController {
     private final SupportService supportService;
-    /**
-     * ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ후원 게시글 관련ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-     */
 
-    /**
-     * CREATE
-     */
-    @Operation(summary = "후원하기 게시글 등록", description = "후원하기 게시글을 등록합니다.(자립 준비 청소년만)")
+    @Operation(summary = "후원하기 게시글 등록",
+            description = "후원하기 게시글을 등록합니다.(자립 준비 청소년만)")
     @PostMapping
     public ResponseEntity<ApiResponse<Object>> createSupport(
             Principal principal,
-            @RequestBody SupportCreateRequestDto supportCreateRequestDto
+            @RequestBody SupportPostCreateRequestDto supportPostCreateRequestDto
     ) {
         Long memberId = SecurityUtils.getCurrentUserId(principal);
-        supportService.createSupport(memberId, supportCreateRequestDto);
+        supportService.createSupport(memberId, supportPostCreateRequestDto);
         return ApiResponse.success(CREATE_SUPPORT_SUCCESS);
     }
 
-    /**
-     * READ
-     */
-//
-//    @Operation(summary = "후원하기 게시글 조회", description = "후원하기 게시글을 조회합니다.(모든 회원 가능)")
-//    @GetMapping("/{supportId}")
-//    public ResponseEntity<ApiResponse<SupportGetResponseDto>> getSupport(
-//            @PathVariable(value = "supportId") Long supportId
-//    ) {
-//        // TODO :: 후원하기(후원자) & 후원 인증 관련 로직 추가
-//        return ApiResponse.success(GET_SUPPORT_SUCCESS, supportService.getSupport(supportId));
-//    }
+    @Operation(summary = "후원하기 게시글 조회",
+            description = "후원하기 게시글을 조회합니다.(모든 회원 가능)")
+    @GetMapping("/{supportId}")
+    public ResponseEntity<ApiResponse<SupportPostGetResponseDto>> getSupport(
+            @PathVariable(value = "supportId") Long supportId
+    ) {
+        // TODO :: 후원 인증 관련 로직 추가
+        return ApiResponse.success(GET_SUPPORT_SUCCESS, supportService.getSupport(supportId));
+    }
+    // TODO :: 후원 게시글 둘러보기를 후원하기 상세 페이지에서도 봐얗마
+
+    @Operation(summary = "후원 물품 금액 후원하기",
+            description = "후원하기 게시글에서 후원 물품 금액 조회합니다.(모든 회원 가능)")
+    @PostMapping("/{supportId}/record")
+    public ResponseEntity<ApiResponse<Object>> createSupportRecord(
+            @PathVariable(value = "supportId") Long supportId,
+            @RequestBody SupportRecordCreateRequestDto donationRequestDto,
+            Principal principal
+    ) {
+        Long memberId = SecurityUtils.getCurrentUserId(principal);
+        // 후원 로직 처리
+        supportService.createSupportRecord(supportId, donationRequestDto, memberId);
+        return ApiResponse.success(CREATE_DONATE_SUCCESS);
+    }
+
+    @Operation(summary = "후원 진행률",
+            description = "후원하기 게시글 및 후원하기 시에 후원 진행률 반환")
+    @GetMapping("/{supportId}/progress")
+    public ResponseEntity<ApiResponse<SupportRecordProgressGetResponseDto>> getSupportProgress(
+            @PathVariable(value = "supportId") Long supportId
+    ) {
+        return ApiResponse.success(GET_SUPPORT_PROGRESS_SUCCESS, supportService.getSupportProgress(supportId));
+    }
+
 //
 //    /**
 //     * UPDATE
@@ -75,7 +90,7 @@ public class SupportController {
 //
 //    @Operation(summary = "후원하기 게시글 수정", description = "후원하기 게시글을 수정합니다.")
 //    @PutMapping("/{supportId}")
-//    public ResponseEntity<ApiResponse<SupportGetResponseDto>> updateSupport(
+//    public ResponseEntity<ApiResponse<SupportPostGetResponseDto>> updateSupport(
 //            Principal principal,
 //            @PathVariable(value = "supportId") Long supportId,
 //            @RequestBody SupportUpdateRequestDto supportUpdateRequestDto

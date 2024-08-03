@@ -19,12 +19,12 @@ public class SupportImage {
     private String imageUrl;
 
     @ManyToOne
-    @JoinColumn(name = "support_id", nullable = false)
-    private Support support;
+    @JoinColumn(name = "support_post_id", nullable = false)
+    private SupportPost supportPost;
 
     @Builder
-    public SupportImage(Support support, String imageUrl) {
-        this.support = support;
+    public SupportImage(SupportPost supportPost, String imageUrl) {
+        this.supportPost = supportPost;
         this.imageUrl = imageUrl;
     }
 }
