@@ -111,10 +111,10 @@ public class CanaryProfileService {
     }
 
     @Transactional(readOnly = true)
-    public CanaryProfileGetResponseDto getCanaryForSupport(Long memberId) {
+    public CanaryProfileGetResponse getCanaryForSupport(Long memberId) {
         CanaryProfile canaryProfile = canaryProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
 
-        return new CanaryProfileGetResponseDto(canaryProfile);
+        return new CanaryProfileGetResponse(canaryProfile);
     }
 }
