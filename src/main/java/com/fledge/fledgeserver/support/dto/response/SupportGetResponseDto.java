@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Getter
@@ -14,8 +15,8 @@ public class SupportGetResponseDto {
     @Schema(description = "멤버 식별자(프로필 팝업 띄우기)", example = "2")
     private Long memberId;
 
-//    @Schema(description = "", example = "")
-@Schema(description = "작성자 닉네임", example = "카드값줘체리")
+    //    @Schema(description = "", example = "")
+    @Schema(description = "작성자 닉네임", example = "카드값줘체리")
     private String nickname;
 
     @Schema(description = "후원 게시글 제목", example = "후원 요청")
@@ -36,16 +37,13 @@ public class SupportGetResponseDto {
     @Schema(description = "후원 물품 이미지 리스트")
     private List<String> images;
 
-    @Schema(description = "후원 인증 기간", example = "30")
-    private int checkPeriod;
-
-    @Schema(description = "후원 인증 횟수", example = "1")
-    private int checkCount;
+    @Schema(description = "남은 기간", example = "99")
+    private String leftDays;
 
     @Schema(description = "후원 만료 시점", example = "2024-07-31")
     private String expirationDate;
 
-    public SupportGetResponseDto(Long memberId, String nickname, String title, String reason, String item, String purchaseUrl, int price, List<String> images, int checkPeriod, int checkCount, LocalDate expirationDate) {
+    public SupportGetResponseDto(Long memberId, String nickname, String title, String reason, String item, String purchaseUrl, int price, List<String> images, LocalDate expirationDate) {
         this.memberId = memberId;
         this.nickname = nickname;
         this.title = title;
@@ -54,8 +52,7 @@ public class SupportGetResponseDto {
         this.purchaseUrl = purchaseUrl;
         this.price = price;
         this.images = images;
-        this.checkPeriod = checkPeriod;
-        this.checkCount = checkCount;
+        this.leftDays = String.valueOf(ChronoUnit.DAYS.between(LocalDate.now(), expirationDate));
         this.expirationDate = TimeUtils.refineToDate(expirationDate);
     }
 }

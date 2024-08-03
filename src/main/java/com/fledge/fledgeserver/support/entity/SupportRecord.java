@@ -16,21 +16,33 @@ public class SupportRecord extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Member와의 다대일 관계
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Support와의 다대일 관계
-    @JoinColumn(name = "support_id", nullable = false)
-    private Support support;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "support_post_id", nullable = false)
+    private SupportPost supportPost;
+
+    @Column(nullable = false)
+    private String bankName;
+
+    @Column(nullable = false)
+    private String bankCode;
 
     @Column(nullable = false)
     private String account;
 
+    @Column(nullable = false)
+    private int amount;
+
     @Builder
-    public SupportRecord(Member member, Support support, String account) {
+    public SupportRecord(Member member, SupportPost supportPost, String account, int amount, String bankName, String bankCode) {
         this.member = member;
-        this.support = support;
+        this.supportPost = supportPost;
+        this.bankName = bankName;
+        this.bankCode = bankCode;
         this.account = account;
+        this.amount = amount;
     }
 }

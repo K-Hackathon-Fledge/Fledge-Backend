@@ -7,30 +7,28 @@ import com.fledge.fledgeserver.file.FileService;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.member.entity.Role;
 import com.fledge.fledgeserver.member.repository.MemberRepository;
+import com.fledge.fledgeserver.support.dto.request.SupportRecordCreateRequestDto;
 import com.fledge.fledgeserver.support.dto.request.SupportCreateRequestDto;
-import com.fledge.fledgeserver.support.dto.request.SupportUpdateRequestDto;
-import com.fledge.fledgeserver.support.dto.response.SupportGetForUpdateResponseDto;
 import com.fledge.fledgeserver.support.dto.response.SupportGetResponseDto;
-import com.fledge.fledgeserver.support.entity.Support;
+import com.fledge.fledgeserver.support.entity.SupportPost;
 import com.fledge.fledgeserver.support.entity.SupportImage;
+import com.fledge.fledgeserver.support.entity.SupportRecord;
 import com.fledge.fledgeserver.support.repository.SupportImageRepository;
+import com.fledge.fledgeserver.support.repository.SupportRecordRepository;
 import com.fledge.fledgeserver.support.repository.SupportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class SupportService {
     private final MemberRepository memberRepository;
-    private final CanaryProfileRepository canaryProfileRepository;
     private final SupportRepository supportRepository;
     private final FileService fileService;
-    private final SupportImageRepository supportImageRepository;
+    private final SupportRecordRepository supportRecordRepository;
 
+    @Transactional
     public void createSupport(Long memberId, SupportCreateRequestDto supportCreateRequestDto) {
         Member member = memberRepository.findMemberById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -39,41 +37,62 @@ public class SupportService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
         }
 
-        Support support = Support.builder()
+        SupportPost supportPost = SupportPost.builder()
                 .member(member)
                 .supportCreateRequestDto(supportCreateRequestDto)
                 .build();
-        supportRepository.save(support);
+        supportRepository.save(supportPost);
 
         for (String imageUrl : supportCreateRequestDto.getImages()) {
             SupportImage supportImage = SupportImage.builder()
-                    .support(support)
+                    .supportPost(supportPost)
                     .imageUrl(imageUrl)
                     .build();
-            support.getImages().add(supportImage);
+            supportPost.getImages().add(supportImage);
         }
     }
 
-//    public SupportGetResponseDto getSupport(Long supportId) {
-//        Support support = supportRepository.findSupportByIdWithFetch(supportId)
-//                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
-//
-//        return new SupportGetResponseDto(
-//                support.getMember().getId(),
-//                support.getMember().getNickname(),
-//                support.getTitle(),
-//                support.getReason(),
-//                support.getItem(),
-//                support.getPurchaseUrl(),
-//                support.getPrice(),
-//                // Images Presigned-URL처리
-//                support.getImages().stream()
-//                        .map(supportImage -> fileService.getFileUrl(supportImage.getImageUrl()))
-//                        .toList(),
-//                support.getExpirationDate()
-//        );
-//    }
-//
+    @Transactional(readOnly = true)
+    public SupportGetResponseDto getSupport(Long supportId) {
+        SupportPost supportPost = supportRepository.findSupportByIdWithFetch(supportId)
+                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
+
+        return new SupportGetResponseDto(
+                supportPost.getMember().getId(),
+                supportPost.getMember().getNickname(),
+                supportPost.getTitle(),
+                supportPost.getReason(),
+                supportPost.getItem(),
+                supportPost.getPurchaseUrl(),
+                supportPost.getPrice(),
+                // Images Presigned-URL처리
+                supportPost.getImages().stream()
+                        .map(supportImage -> fileService.getFileUrl(supportImage.getImageUrl()))
+                        .toList(),
+                supportPost.getExpirationDate()
+        );
+    }
+
+    @Transactional
+    public void createSupportRecord(Long supportId, SupportRecordCreateRequestDto supportRecordCreateRequestDto, Long memberId) {
+        Member member = memberRepository.findMemberByIdOrThrow(memberId); // 후원자
+        SupportPost supportPost = supportRepository.findSupportByIdOrThrow(supportId); // 게시글
+
+        // 후원 내역 기록
+        SupportRecord supportRecord = SupportRecord.builder()
+                .member(member)
+                .supportPost(supportPost)
+                .bankName(supportRecordCreateRequestDto.getBankName())
+                .bankCode(supportRecordCreateRequestDto.getBankCode())
+                .account(supportRecordCreateRequestDto.getAccount())
+                .amount(supportRecordCreateRequestDto.getAmount())
+                .build();
+        supportRecordRepository.save(supportRecord);
+
+        // 후원 게시글 상태 변경
+        supportPost.support();
+    }
+
 //    public SupportGetForUpdateResponseDto getSupportForUpdate(Long memberId, Long supportId) {
 //        Support support = supportRepository.findSupportByIdWithFetch(supportId)
 //                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));

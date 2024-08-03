@@ -18,7 +18,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Support extends BaseTimeEntity {
+public class SupportPost extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +43,7 @@ public class Support extends BaseTimeEntity {
     @Column(nullable = false)
     private int price;
 
-    @OneToMany(mappedBy = "support", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "supportPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SupportImage> images = new ArrayList<>();
 
     @Column(nullable = false)
@@ -54,11 +54,19 @@ public class Support extends BaseTimeEntity {
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private Promise promise; // 인증 주기 및 횟수
+    private Promise promise;
+
+    @OneToMany(mappedBy = "supportPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SupportRecord> supportRecords = new ArrayList<>();
+
+    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private SupportPostStatus supportPostStatus = SupportPostStatus.PENDING;
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private SupportCategory supportCategory;
+
 
     // ------의료비 또는 법률구조비------
     @Column(nullable = true)
@@ -86,7 +94,7 @@ public class Support extends BaseTimeEntity {
     // TODO :: 챌린지 구현 후 참여 중이거나 완료한 챌린지(뱃지)에 대한 로직 추가
 
     @Builder
-    public Support(Member member, SupportCreateRequestDto supportCreateRequestDto) {
+    public SupportPost(Member member, SupportCreateRequestDto supportCreateRequestDto) {
         this.member = member;
         this.title = supportCreateRequestDto.getTitle();
         this.reason = supportCreateRequestDto.getReason();
@@ -116,8 +124,6 @@ public class Support extends BaseTimeEntity {
         }
     }
 
-
-
     public void update(SupportUpdateRequestDto supportUpdateRequestDto) {
         this.title = supportUpdateRequestDto.getTitle();
         this.reason = supportUpdateRequestDto.getReason();
@@ -132,5 +138,8 @@ public class Support extends BaseTimeEntity {
         this.expirationDate = supportUpdateRequestDto.getExpirationDate();
     }
 
+    public void support() {
+        this.supportPostStatus = SupportPostStatus.IN_PROGRESS;
+    }
 }
 
