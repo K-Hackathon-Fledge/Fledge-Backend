@@ -1,4 +1,4 @@
-package com.fledge.fledgeserver.challenge;
+package com.fledge.fledgeserver.challenge.repository;
 
 import com.fledge.fledgeserver.challenge.Enum.ChallengeCategory;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeType;

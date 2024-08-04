@@ -38,7 +38,10 @@ public enum SuccessStatus {
     /**
      * challenge
      */
-    CHALLENGE_RETRIEVAL_SUCCESS(HttpStatus.OK, "챌린지 조회 성공");
+    CHALLENGE_RETRIEVAL_SUCCESS(HttpStatus.OK, "챌린지 조회 성공"),
+    CHALLENGE_PARTICIPATION_SUCCESS(HttpStatus.OK, "챌린지 참여 성공"),
+    CHALLENGE_PROOF_UPLOAD_SUCCESS(HttpStatus.OK, "챌린지 인증 업로드 성공"),
+    CHALLENGE_UPDATE_SUCCESS(HttpStatus.NO_CONTENT, "챌린지 업데이트 성공");
 
 
     private final HttpStatus httpStatus;

@@ -2,6 +2,7 @@ package com.fledge.fledgeserver.challenge.entity;
 
 import com.fledge.fledgeserver.challenge.Enum.ChallengeCategory;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeType;
+import com.fledge.fledgeserver.challenge.Enum.Frequency;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -18,7 +19,7 @@ public class GeneralChallenge extends Challenge {
     }
 
     public GeneralChallenge(String title, List<ChallengeCategory> categories, String description, int participantCount,
-                            int successCount, ChallengeType type, LocalDate registrationDate, int likeCount) {
-        super(title, categories, description, participantCount, successCount, type, registrationDate, likeCount);
+                            int successCount, ChallengeType type, LocalDate registrationDate, int likeCount, int periodWeeks, Frequency frequency) {
+        super(title, categories, description, participantCount, successCount, type, registrationDate, likeCount, periodWeeks, frequency);
     }
 }
