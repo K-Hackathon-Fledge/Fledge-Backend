@@ -45,7 +45,7 @@ public class MemberController {
             @Parameter(description = "회원 ID", required = true, example = "1") @PathVariable Long id,
             @Parameter(description = "닉네임 수정 요청", required = true) @RequestBody MemberNicknameUpdateRequest request,
             @AuthenticationPrincipal OAuthUserImpl oAuth2User) {
-        MemberResponse memberResponse = memberService.updateNickname(id, request.getNickname(), oAuth2User);
+        MemberResponse memberResponse = memberService.updateNickname(id, request.getNickname());
         return ApiResponse.success(SuccessStatus.MEMBER_NICKNAME_UPDATE_SUCCESS, memberResponse);
     }
 }

@@ -22,8 +22,8 @@ public class CanaryProfileService {
     private final CanaryProfileRepository canaryProfileRepository;
 
     @Transactional
-    public void createCanaryProfile(CanaryProfileRequest request, OAuthUserImpl oAuth2User) {
-        Member member = authenticateAndAuthorize(oAuth2User, request.getUserId());
+    public void createCanaryProfile(CanaryProfileRequest request) {
+        Member member = SecurityUtils.checkAndGetCurrentUser(request.getUserId());
 
         boolean exists = canaryProfileRepository.existsByMember(member);
         if (exists) {
@@ -49,8 +49,8 @@ public class CanaryProfileService {
     }
 
     @Transactional(readOnly = true)
-    public int getApprovalStatus(Long userId, OAuthUserImpl oAuth2User) {
-        authenticateAndAuthorize(oAuth2User, userId);
+    public int getApprovalStatus(Long userId) {
+        SecurityUtils.checkAndGetCurrentUser(userId);
 
         CanaryProfile canaryProfile = canaryProfileRepository.findByMemberId(userId)
                 .orElse(null);
@@ -73,8 +73,8 @@ public class CanaryProfileService {
     }
 
     @Transactional
-    public CanaryProfileResponse updateCanaryProfile(Long userId, CanaryProfileUpdateRequest request, OAuthUserImpl oAuth2User) {
-        authenticateAndAuthorize(oAuth2User, userId);
+    public CanaryProfileResponse updateCanaryProfile(Long userId, CanaryProfileUpdateRequest request) {
+        SecurityUtils.checkAndGetCurrentUser(userId);
 
         CanaryProfile existingProfile = canaryProfileRepository.findByMemberId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
@@ -87,18 +87,9 @@ public class CanaryProfileService {
     }
 
 
-    private Member authenticateAndAuthorize(OAuthUserImpl oAuth2User, Long userId) {
-        Member member = SecurityUtils.getCurrentMember(oAuth2User);
-
-        if (member.getId() != userId) {
-            throw new CustomException(MEMBER_FORBIDDEN);
-        }
-
-        return member;
-    }
-
     @Transactional(readOnly = true)
-    public CanaryGetDeliveryInfoResponse getCanaryDeliveryInfo(Long userId) {
+    public CanaryGetDeliveryInfoResponse getCanaryDeliveryInfo() {
+        Long userId = SecurityUtils.getCurrentUserId();
         CanaryProfile canary = canaryProfileRepository.findCanaryProfileByMemberId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
         return new CanaryGetDeliveryInfoResponse(

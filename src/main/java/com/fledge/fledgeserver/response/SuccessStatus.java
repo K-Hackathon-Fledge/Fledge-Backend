@@ -17,6 +17,11 @@ public enum SuccessStatus {
     MEMBER_NICKNAME_UPDATE_SUCCESS(HttpStatus.OK, "회원 닉네임 수정 성공"),
 
     /**
+     * file
+     */
+    FILE_RETRIEVAL_SUCCESS(HttpStatus.OK, "회원 정보 조회 성공"),
+
+    /**
      * support
      */
     CREATE_SUPPORT_SUCCESS(HttpStatus.CREATED, "후원하기 게시글 등록 성공"),
