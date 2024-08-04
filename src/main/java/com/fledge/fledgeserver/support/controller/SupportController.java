@@ -101,14 +101,15 @@ public class SupportController {
 
 
     @Operation(summary = "후원하기 게시글 리스트 페이징",
-            description = "검색어(제목,내용) 및 카테고리 그리고 상태 기준으로 조회.")
+            description = "q:검색어(제목,내용), category:카테고리 그리고 상태:status('ing'/'end') 기준으로 조회.")
     @GetMapping("/paging")
     public ResponseEntity<ApiResponse<PostTotalPagingResponse>> pagingSupportPost(
             @RequestParam(defaultValue = "1") int page, // 현재 페이지
 //            @RequestParam(defaultValue = "10") int limit //무조건 9개
+            @RequestParam(defaultValue = "") String q,
             @RequestParam(defaultValue = "") List<String> category, // 카테고리
-            @RequestParam(defaultValue = "") String q
+            @RequestParam(defaultValue = "") String status
     ) {
-        return ApiResponse.success(GET_SUPPORT_POST_PAGING_SUCCESS, supportService.pagingSupportPost(page-1, category, q));
+        return ApiResponse.success(GET_SUPPORT_POST_PAGING_SUCCESS, supportService.pagingSupportPost(page-1, q, category, status));
     }
 }

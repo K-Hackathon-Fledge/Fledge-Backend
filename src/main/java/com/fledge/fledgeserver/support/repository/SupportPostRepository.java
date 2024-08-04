@@ -32,10 +32,16 @@ public interface SupportPostRepository extends JpaRepository<SupportPost, Long> 
 
     @Query("SELECT sp FROM SupportPost sp " +
             "WHERE (:category IS NULL OR sp.supportCategory IN :category) " + // 카테고리 필터링
-            "AND (sp.title LIKE %:q% OR sp.reason LIKE %:q%)" + // 제목 및 이유 필터링
+            "AND (sp.title LIKE %:q% OR sp.reason LIKE %:q%) " + // 제목 및 이유 필터링
+            "AND (:status IS NULL OR " + // 상태 필터링
+            "  (sp.supportPostStatus IN (com.fledge.fledgeserver.support.entity.SupportPostStatus.PENDING, " +
+            "                             com.fledge.fledgeserver.support.entity.SupportPostStatus.IN_PROGRESS) AND :status = 'ing') OR " + // 진행 중
+            "  (sp.supportPostStatus IN (com.fledge.fledgeserver.support.entity.SupportPostStatus.COMPLETED, " +
+            "                             com.fledge.fledgeserver.support.entity.SupportPostStatus.TERMINATED) AND :status = 'end')) " + // 종료
             "ORDER BY sp.createdDate DESC") // 내림차순
-    Page<SupportPost> findByCategoryAndSearch(@Param("category") List<SupportCategory> category,
+    Page<SupportPost> findByCategoryAndSearchAAndSupportPostStatus(@Param("category") List<SupportCategory> category,
                                               @Param("q") String q,
+                                              @Param("status") String status, // 매개변수를 열거형으로 변경
                                               Pageable pageable);
 
 

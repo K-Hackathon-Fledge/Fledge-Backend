@@ -208,7 +208,7 @@ public class SupportService {
     }
 
     @Transactional(readOnly = true)
-    public PostTotalPagingResponse pagingSupportPost(int page, List<String> category, String q) {
+    public PostTotalPagingResponse pagingSupportPost(int page, String q, List<String> category, String status) {
         // 첫 번째 페이지 인덱스: 0, limit = 9 고정
         PageRequest pageable = PageRequest.of(page, 9);
 
@@ -216,7 +216,7 @@ public class SupportService {
                 .map(SupportCategory::valueOf)
                 .collect(Collectors.toList());
 
-        Page<SupportPost> supportPostPage = supportPostRepository.findByCategoryAndSearch(selectedCategories, q, pageable);
+        Page<SupportPost> supportPostPage = supportPostRepository.findByCategoryAndSearchAAndSupportPostStatus(selectedCategories, q, status, pageable);
 
         List<PostPagingResponse> postPagingResponse = supportPostPage.getContent().stream()
                 .map(supportPost -> {
