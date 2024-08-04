@@ -2,10 +2,14 @@ package com.fledge.fledgeserver.support.controller;
 
 import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.response.ApiResponse;
-import com.fledge.fledgeserver.support.dto.request.SupportRecordCreateRequestDto;
-import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequestDto;
-import com.fledge.fledgeserver.support.dto.response.SupportPostGetResponseDto;
-import com.fledge.fledgeserver.support.dto.response.SupportRecordProgressGetResponseDto;
+import com.fledge.fledgeserver.response.SuccessStatus;
+import com.fledge.fledgeserver.support.dto.request.SupportPostUpdateRequest;
+import com.fledge.fledgeserver.support.dto.request.SupportRecordCreateRequest;
+import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequest;
+import com.fledge.fledgeserver.support.dto.response.SupportGetForUpdateResponse;
+import com.fledge.fledgeserver.support.dto.response.SupportPostGetResponse;
+import com.fledge.fledgeserver.support.dto.response.SupportPostPagingResponse;
+import com.fledge.fledgeserver.support.dto.response.SupportRecordProgressGetResponse;
 import com.fledge.fledgeserver.support.service.SupportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 import static com.fledge.fledgeserver.response.SuccessStatus.*;
 
@@ -29,30 +34,30 @@ public class SupportController {
     @PostMapping
     public ResponseEntity<ApiResponse<Object>> createSupport(
             Principal principal,
-            @RequestBody SupportPostCreateRequestDto supportPostCreateRequestDto
+            @RequestBody SupportPostCreateRequest supportPostCreateRequest
     ) {
         Long memberId = SecurityUtils.getCurrentUserId(principal);
-        supportService.createSupport(memberId, supportPostCreateRequestDto);
+        supportService.createSupport(memberId, supportPostCreateRequest);
         return ApiResponse.success(CREATE_SUPPORT_SUCCESS);
     }
 
     @Operation(summary = "후원하기 게시글 조회",
             description = "후원하기 게시글을 조회합니다.(모든 회원 가능)")
     @GetMapping("/{supportId}")
-    public ResponseEntity<ApiResponse<SupportPostGetResponseDto>> getSupport(
+    public ResponseEntity<ApiResponse<SupportPostGetResponse>> getSupport(
             @PathVariable(value = "supportId") Long supportId
     ) {
         // TODO :: 후원 인증 관련 로직 추가
+        // TODO :: 후원 게시글 둘러보기를 후원하기 상세 페이지에서도 봐야함
         return ApiResponse.success(GET_SUPPORT_SUCCESS, supportService.getSupport(supportId));
     }
-    // TODO :: 후원 게시글 둘러보기를 후원하기 상세 페이지에서도 봐얗마
 
     @Operation(summary = "후원 물품 금액 후원하기",
             description = "후원하기 게시글에서 후원 물품 금액 조회합니다.(모든 회원 가능)")
     @PostMapping("/{supportId}/record")
     public ResponseEntity<ApiResponse<Object>> createSupportRecord(
             @PathVariable(value = "supportId") Long supportId,
-            @RequestBody SupportRecordCreateRequestDto donationRequestDto,
+            @RequestBody SupportRecordCreateRequest donationRequestDto,
             Principal principal
     ) {
         Long memberId = SecurityUtils.getCurrentUserId(principal);
@@ -64,58 +69,49 @@ public class SupportController {
     @Operation(summary = "후원 진행률",
             description = "후원하기 게시글 및 후원하기 시에 후원 진행률 반환")
     @GetMapping("/{supportId}/progress")
-    public ResponseEntity<ApiResponse<SupportRecordProgressGetResponseDto>> getSupportProgress(
+    public ResponseEntity<ApiResponse<SupportRecordProgressGetResponse>> getSupportProgress(
             @PathVariable(value = "supportId") Long supportId
     ) {
         return ApiResponse.success(GET_SUPPORT_PROGRESS_SUCCESS, supportService.getSupportProgress(supportId));
     }
 
-//
-//    /**
-//     * UPDATE
-//     */
-//
-//    @Operation(summary = "후원하기 게시글 수정 시 기존 데이터 조회", description = "후원하기 게시글의 기존 데이터를 반환합니다.")
-//    @GetMapping("/{supportId}/update")
-//    public ResponseEntity<ApiResponse<SupportGetForUpdateResponseDto>> getSupportForUpdate(
-//            @PathVariable(value = "supportId") Long supportId,
-//            Principal principal
-//    ) {
-//        Long memberId = SecurityUtils.getCurrentUserId(principal);
-//        return ApiResponse.success(
-//                SuccessStatus.GET_SUPPORT_FOR_UPDATE_SUCCESS,
-//                supportService.getSupportForUpdate(memberId, supportId)
-//        );
-//    }
-//
-//    @Operation(summary = "후원하기 게시글 수정", description = "후원하기 게시글을 수정합니다.")
-//    @PutMapping("/{supportId}")
-//    public ResponseEntity<ApiResponse<SupportPostGetResponseDto>> updateSupport(
-//            Principal principal,
-//            @PathVariable(value = "supportId") Long supportId,
-//            @RequestBody SupportUpdateRequestDto supportUpdateRequestDto
-//    ) {
-//        Long memberId = SecurityUtils.getCurrentUserId(principal);
-//        supportService.updateSupport(memberId, supportId, supportUpdateRequestDto);
-//        return ApiResponse.success(SuccessStatus.UPDATE_SUPPORT_SUCCESS);
-//    }
+    @Operation(summary = "후원하기 게시글 수정 시 기존 데이터 조회",
+            description = "후원하기 게시글의 기존 데이터를 반환합니다.\nStatus가 PENDING이면 공통 필드 수정 가능, 그 외 수정 불가")
+    @GetMapping("/{supportId}/update")
+    public ResponseEntity<ApiResponse<SupportGetForUpdateResponse>> getSupportForUpdate(
+            @PathVariable(value = "supportId") Long supportId,
+            Principal principal
+    ) {
+        Long memberId = SecurityUtils.getCurrentUserId(principal);
+        return ApiResponse.success(
+                GET_SUPPORT_FOR_UPDATE_SUCCESS, supportService.getSupportForUpdate(supportId, memberId)
+        );
+    }
 
-    /**
-     * DELETE
-     */
+    @Operation(summary = "후원하기 게시글 수정", description = "(이미지 업데이트 안됨)후원하기 게시글을 수정합니다.")
+    @PutMapping("/{supportId}")
+    public ResponseEntity<ApiResponse<SupportPostGetResponse>> updateSupportPost(
+            Principal principal,
+            @PathVariable(value = "supportId") Long supportId,
+            @RequestBody SupportPostUpdateRequest supportPostUpdateRequest
+    ) {
+        Long memberId = SecurityUtils.getCurrentUserId(principal);
+        supportService.updateSupportPost(memberId, supportId, supportPostUpdateRequest);
+        return ApiResponse.success(SuccessStatus.UPDATE_SUPPORT_SUCCESS);
+    }
+
     // TODO :: 후원하기 게시글 삭제 API
 
 
-    /**
-     * ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ후원 하기ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-     */
-    /**
-     * 후원하기 팝업에서 정보 조회
-     */
-
-
-    /**
-     * 후원하기 시 후원 처리
-     */
-
+    @Operation(summary = "후원하기 게시글 리스트 페이징",
+            description = "검색어(제목,내용) 및 카테고리 그리고 상태 기준으로 조회.")
+    @GetMapping("/paging")
+    public ResponseEntity<ApiResponse<List<SupportPostPagingResponse>>> pagingSupportPost(
+            @RequestParam(defaultValue = "0") int page, // 현재 페이지
+//            @RequestParam(defaultValue = "10") int limit //무조건 9개
+            @RequestParam(defaultValue = "") List<String> category, // 카테고리
+            @RequestParam(defaultValue = "") String q
+    ) {
+        return ApiResponse.success(GET_SUPPORT_POST_PAGING_SUCCESS, supportService.pagingSupportPost(page, category, q));
+    }
 }

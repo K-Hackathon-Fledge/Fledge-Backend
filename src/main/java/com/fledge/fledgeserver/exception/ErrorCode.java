@@ -34,6 +34,7 @@ public enum ErrorCode {
     // support
     UNAUTHORIZED_REQUEST(UNAUTHORIZED, "권한이 없습니다."),
     SUPPORT_NOT_FOUND(NOT_FOUND, "후원 요청 게시글을 찾을 수 없습니다."),
+    OVER_SUPPORT_PRICE(BAD_REQUEST, "후원 물품 금액을 초과하였습니다."),
 
     // challenge
     CHALLENGE_NOT_FOUND(NOT_FOUND, "챌린지를 찾을 수 없습니다."),

@@ -86,7 +86,7 @@ public class CanaryProfileController {
 
     @Operation(summary = "후원하기 게시글 조회 시 자립준비청년 프로필 조회", description = "후원하기 게시글에서 자립준비청년 프로필을 조회합니다.")
     @GetMapping("/{memberId}/supports")
-    public ResponseEntity<ApiResponse<CanaryProfileGetResponseDto>> getSupport(
+    public ResponseEntity<ApiResponse<CanaryProfileGetResponse>> getSupport(
             @PathVariable(value = "memberId") Long memberId
     ) {
         // TODO :: 자립준비청년이 완료한 챌린지 및 후원 인증 스토리 그리고 인증률도 함께 보여줘야함!

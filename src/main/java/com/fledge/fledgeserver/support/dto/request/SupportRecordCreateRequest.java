@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Schema(description = "후원 기록 생성 DTO")
-public class SupportRecordCreateRequestDto {
+public class SupportRecordCreateRequest {
 
     @Schema(description = "후원 계좌 은행 이름", required = true, example = "국민은행")
     @NotBlank(message = "은행 이름은 필수입니다.")

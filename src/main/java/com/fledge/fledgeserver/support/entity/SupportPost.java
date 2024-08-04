@@ -3,8 +3,8 @@ package com.fledge.fledgeserver.support.entity;
 import com.fledge.fledgeserver.common.entity.BaseTimeEntity;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.promise.entity.Promise;
-import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequestDto;
-import com.fledge.fledgeserver.support.dto.request.SupportUpdateRequestDto;
+import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequest;
+import com.fledge.fledgeserver.support.dto.request.SupportPostUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -94,49 +94,65 @@ public class SupportPost extends BaseTimeEntity {
     // TODO :: 챌린지 구현 후 참여 중이거나 완료한 챌린지(뱃지)에 대한 로직 추가
 
     @Builder
-    public SupportPost(Member member, SupportPostCreateRequestDto supportPostCreateRequestDto) {
+    public SupportPost(Member member, SupportPostCreateRequest supportPostCreateRequest) {
         this.member = member;
-        this.title = supportPostCreateRequestDto.getTitle();
-        this.reason = supportPostCreateRequestDto.getReason();
-        this.item = supportPostCreateRequestDto.getItem();
-        this.purchaseUrl = supportPostCreateRequestDto.getPurchaseUrl();
-        this.price = supportPostCreateRequestDto.getPrice();
-        this.expirationDate = supportPostCreateRequestDto.getExpirationDate();
-        this.promise = Promise.valueOf(supportPostCreateRequestDto.getPromise());
-        this.supportCategory = SupportCategory.valueOf(supportPostCreateRequestDto.getSupportCategory());
+        this.title = supportPostCreateRequest.getTitle();
+        this.reason = supportPostCreateRequest.getReason();
+        this.item = supportPostCreateRequest.getItem();
+        this.purchaseUrl = supportPostCreateRequest.getPurchaseUrl();
+        this.price = supportPostCreateRequest.getPrice();
+        this.expirationDate = supportPostCreateRequest.getExpirationDate();
+        this.promise = Promise.valueOf(supportPostCreateRequest.getPromise());
+        this.supportCategory = SupportCategory.valueOf(supportPostCreateRequest.getSupportCategory());
 
         if ("MEDICAL".equals(supportCategory.name()) || "LEGAL_AID".equals(supportCategory.name())) {
-            this.bank = supportPostCreateRequestDto.getBank();
-            this.account = supportPostCreateRequestDto.getAccount();
+            this.bank = supportPostCreateRequest.getBank();
+            this.account = supportPostCreateRequest.getAccount();
             this.recipientName = null;
             this.phone = null;
             this.address = null;
             this.detailAddress = null;
             this.zip = null;
         } else {
-            this.recipientName = supportPostCreateRequestDto.getRecipientName();
-            this.phone = supportPostCreateRequestDto.getPhone();
-            this.address = supportPostCreateRequestDto.getAddress();
-            this.detailAddress = supportPostCreateRequestDto.getDetailAddress();
-            this.zip = supportPostCreateRequestDto.getZip();
+            this.recipientName = supportPostCreateRequest.getRecipientName();
+            this.phone = supportPostCreateRequest.getPhone();
+            this.address = supportPostCreateRequest.getAddress();
+            this.detailAddress = supportPostCreateRequest.getDetailAddress();
+            this.zip = supportPostCreateRequest.getZip();
             this.bank = null;
             this.account = null;
         }
     }
 
-    public void update(SupportUpdateRequestDto supportUpdateRequestDto) {
-        this.title = supportUpdateRequestDto.getTitle();
-        this.reason = supportUpdateRequestDto.getReason();
-        this.item = supportUpdateRequestDto.getItem();
-        this.purchaseUrl = supportUpdateRequestDto.getPurchaseUrl();
-        this.price = supportUpdateRequestDto.getPrice();
-        this.recipientName = supportUpdateRequestDto.getRecipientName();
-        this.phone = supportUpdateRequestDto.getPhone();
-        this.address = supportUpdateRequestDto.getAddress();
-        this.detailAddress = supportUpdateRequestDto.getDetailAddress();
-        this.zip = supportUpdateRequestDto.getZip();
-        this.expirationDate = supportUpdateRequestDto.getExpirationDate();
+    public void updateAll(SupportPostUpdateRequest supportPostUpdateRequest) {
+        this.supportCategory = SupportCategory.valueOf(supportPostUpdateRequest.getSupportCategory());
+        this.title = supportPostUpdateRequest.getTitle();
+        this.reason = supportPostUpdateRequest.getReason();
+        this.item = supportPostUpdateRequest.getItem();
+        this.purchaseUrl = supportPostUpdateRequest.getPurchaseUrl();
+        this.price = supportPostUpdateRequest.getPrice();
+        this.promise = Promise.valueOf(supportPostUpdateRequest.getPromise());
+        this.expirationDate = supportPostUpdateRequest.getExpirationDate();
+        this.bank = supportPostUpdateRequest.getBank();
+        this.account = supportPostUpdateRequest.getAccount();
+        this.recipientName = supportPostUpdateRequest.getRecipientName();
+        this.phone = supportPostUpdateRequest.getPhone();
+        this.address = supportPostUpdateRequest.getAddress();
+        this.detailAddress = supportPostUpdateRequest.getDetailAddress();
+        this.zip = supportPostUpdateRequest.getZip();
     }
+
+    public void updateNotPending(SupportPostUpdateRequest supportPostUpdateRequest) {
+        this.bank = supportPostUpdateRequest.getBank();
+        this.account = supportPostUpdateRequest.getAccount();
+        this.recipientName = supportPostUpdateRequest.getRecipientName();
+        this.phone = supportPostUpdateRequest.getPhone();
+        this.address = supportPostUpdateRequest.getAddress();
+        this.detailAddress = supportPostUpdateRequest.getDetailAddress();
+        this.zip = supportPostUpdateRequest.getZip();
+    }
+
+
 
     public void support() {
         this.supportPostStatus = SupportPostStatus.IN_PROGRESS;
