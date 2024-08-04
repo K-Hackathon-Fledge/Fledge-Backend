@@ -8,6 +8,7 @@ import com.fledge.fledgeserver.support.dto.request.SupportRecordCreateRequest;
 import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequest;
 import com.fledge.fledgeserver.support.dto.response.SupportGetForUpdateResponse;
 import com.fledge.fledgeserver.support.dto.response.SupportPostGetResponse;
+import com.fledge.fledgeserver.support.dto.response.SupportPostPagingResponse;
 import com.fledge.fledgeserver.support.dto.response.SupportRecordProgressGetResponse;
 import com.fledge.fledgeserver.support.service.SupportService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 import static com.fledge.fledgeserver.response.SuccessStatus.*;
 
@@ -86,7 +88,7 @@ public class SupportController {
         );
     }
 
-    @Operation(summary = "후원하기 게시글 수정", description = "후원하기 게시글을 수정합니다.")
+    @Operation(summary = "후원하기 게시글 수정", description = "(이미지 업데이트 안됨)후원하기 게시글을 수정합니다.")
     @PutMapping("/{supportId}")
     public ResponseEntity<ApiResponse<SupportPostGetResponse>> updateSupportPost(
             Principal principal,
@@ -100,4 +102,16 @@ public class SupportController {
 
     // TODO :: 후원하기 게시글 삭제 API
 
+
+    @Operation(summary = "후원하기 게시글 리스트 페이징",
+            description = "검색어(제목,내용) 및 카테고리 그리고 상태 기준으로 조회.")
+    @GetMapping("/paging")
+    public ResponseEntity<ApiResponse<List<SupportPostPagingResponse>>> pagingSupportPost(
+            @RequestParam(defaultValue = "0") int page, // 현재 페이지
+//            @RequestParam(defaultValue = "10") int limit //무조건 9개
+            @RequestParam(defaultValue = "") List<String> category, // 카테고리
+            @RequestParam(defaultValue = "") String q
+    ) {
+        return ApiResponse.success(GET_SUPPORT_POST_PAGING_SUCCESS, supportService.pagingSupportPost(page, category, q));
+    }
 }

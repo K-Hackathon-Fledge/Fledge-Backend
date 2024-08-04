@@ -11,11 +11,14 @@ import com.fledge.fledgeserver.support.dto.request.SupportRecordCreateRequest;
 import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequest;
 import com.fledge.fledgeserver.support.dto.response.SupportGetForUpdateResponse;
 import com.fledge.fledgeserver.support.dto.response.SupportPostGetResponse;
+import com.fledge.fledgeserver.support.dto.response.SupportPostPagingResponse;
 import com.fledge.fledgeserver.support.dto.response.SupportRecordProgressGetResponse;
 import com.fledge.fledgeserver.support.entity.*;
 import com.fledge.fledgeserver.support.repository.SupportRecordRepository;
 import com.fledge.fledgeserver.support.repository.SupportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +59,7 @@ public class SupportService {
         }
     }
 
+
     @Transactional(readOnly = true)
     public SupportPostGetResponse getSupport(Long supportId) {
         SupportPost supportPost = supportRepository.findSupportByIdWithFetch(supportId)
@@ -81,7 +85,6 @@ public class SupportService {
                 supportPost.getItem(),
                 supportPost.getPurchaseUrl(),
                 supportPost.getPrice(),
-                // Images Presigned-URL처리
                 supportPost.getImages().stream()
                         .map(supportImage -> fileService.getFileUrl(supportImage.getImageUrl()))
                         .toList(),
@@ -156,7 +159,9 @@ public class SupportService {
         String item = supportPost.getItem();
         String purchaseUrl = supportPost.getPurchaseUrl();
         int price = supportPost.getPrice();
-        List<String> images = supportPost.getImages().stream().map(SupportImage::getImageUrl).collect(Collectors.toList()); // SupportImage에서 URL 추출
+        List<String> images = supportPost.getImages().stream()
+                .map(supportImage -> fileService.getFileUrl(supportImage.getImageUrl()))
+                .toList();
         String promise = String.valueOf(supportPost.getPromise());
         LocalDate expirationDate = supportPost.getExpirationDate();
 
@@ -195,7 +200,6 @@ public class SupportService {
         if ("PENDING".equals(supportPost.getSupportPostStatus())) {
             supportPost.updateAll(supportPostUpdateRequestDto);
 
-            // Clear existing images and add new ones
             supportPost.getImages().clear();
             List<SupportImage> newImages = supportPostUpdateRequestDto.getImages().stream()
                     .map(imageUrl -> new SupportImage(supportPost, imageUrl))
@@ -204,5 +208,33 @@ public class SupportService {
         } else {
             supportPost.updateNotPending(supportPostUpdateRequestDto);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<SupportPostPagingResponse> pagingSupportPost(int page, List<String> category, String q) {
+        PageRequest pageable = PageRequest.of(page, 9); // limit 9개
+
+        List<SupportCategory> selectedCategories = category.isEmpty() ? null : category.stream()
+                .map(SupportCategory::valueOf) // String을 SupportCategory로 변환
+                .collect(Collectors.toList());
+
+        Page<SupportPost> supportPostPage = supportRepository.findByCategoryAndSearch(selectedCategories, q, pageable);
+
+        return supportPostPage.getContent().stream()
+                .map(supportPost -> {
+                    // 총 금액과 현재 지원된 금액 가져오기 (예시)
+                    int totalPrice = supportPost.getPrice(); // 총 금액을 가져오는 메서드가 필요
+                    int supportedPrice = supportRecordRepository.sumSupportedPriceBySupportPostId(supportPost.getId()); // 지원 금액을 합산하는 메서드 필요
+
+                    SupportRecordProgressGetResponse supportRecordProgress = new SupportRecordProgressGetResponse(totalPrice, supportedPrice);
+
+                    return new SupportPostPagingResponse(
+                            supportPost.getId(),
+                            supportPost.getTitle(),
+                            supportPost.getExpirationDate(),
+                            supportRecordProgress
+                    );
+                })
+                .collect(Collectors.toList());
     }
 }
