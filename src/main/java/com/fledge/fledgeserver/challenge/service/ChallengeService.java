@@ -1,5 +1,6 @@
-package com.fledge.fledgeserver.challenge;
+package com.fledge.fledgeserver.challenge.service;
 
+import com.fledge.fledgeserver.challenge.repository.ChallengeRepository;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeCategory;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeType;
 import com.fledge.fledgeserver.challenge.dto.ChallengeResponse;
@@ -35,7 +36,7 @@ public class ChallengeService {
         } else if ("new".equals(type)) {
             sortBy = "registrationDate";
         } else {
-            throw new CustomException(CHALLENGE_TYPE_INVALID, "유효하지 않은 type 값입니다.");
+            throw new CustomException(CHALLENGE_TYPE_INVALID);
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
@@ -51,6 +52,7 @@ public class ChallengeService {
                 challenge.getTitle(),
                 challenge.getLikeCount(),
                 challenge.getCategories(),
+                challenge.getType().name(),
                 challenge.getDescription(),
                 (double) challenge.getSuccessCount() / challenge.getParticipantCount(),
                 challenge.getParticipantCount()
@@ -71,6 +73,7 @@ public class ChallengeService {
                 challenge.getTitle(),
                 challenge.getLikeCount(),
                 challenge.getCategories(),
+                challenge.getType().name(),
                 challenge.getDescription(),
                 (double) challenge.getSuccessCount() / challenge.getParticipantCount(),
                 challenge.getParticipantCount(),

@@ -2,6 +2,7 @@ package com.fledge.fledgeserver.challenge.entity;
 
 import com.fledge.fledgeserver.challenge.Enum.ChallengeCategory;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeType;
+import com.fledge.fledgeserver.challenge.Enum.Frequency;
 import lombok.*;
 
 import jakarta.persistence.*;
@@ -40,8 +41,14 @@ public class Challenge {
 
     private int likeCount;
 
+    private int periodWeeks;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Frequency frequency;
+
     public Challenge(String title, List<ChallengeCategory> categories, String description, int participantCount,
-                     int successCount, ChallengeType type, LocalDate registrationDate, int likeCount) {
+                     int successCount, ChallengeType type, LocalDate registrationDate, int likeCount, int periodWeeks, Frequency frequency) {
         this.title = title;
         this.categories = categories;
         this.description = description;
@@ -50,5 +57,7 @@ public class Challenge {
         this.type = type;
         this.registrationDate = registrationDate;
         this.likeCount = likeCount;
+        this.periodWeeks = periodWeeks;
+        this.frequency = frequency;
     }
 }

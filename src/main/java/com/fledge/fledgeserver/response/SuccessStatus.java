@@ -17,6 +17,11 @@ public enum SuccessStatus {
     MEMBER_NICKNAME_UPDATE_SUCCESS(HttpStatus.OK, "회원 닉네임 수정 성공"),
 
     /**
+     * file
+     */
+    FILE_RETRIEVAL_SUCCESS(HttpStatus.OK, "회원 정보 조회 성공"),
+
+    /**
      * support
      */
     CREATE_SUPPORT_SUCCESS(HttpStatus.CREATED, "후원하기 게시글 등록 성공"),
@@ -38,7 +43,10 @@ public enum SuccessStatus {
     /**
      * challenge
      */
-    CHALLENGE_RETRIEVAL_SUCCESS(HttpStatus.OK, "챌린지 조회 성공");
+    CHALLENGE_RETRIEVAL_SUCCESS(HttpStatus.OK, "챌린지 조회 성공"),
+    CHALLENGE_PARTICIPATION_SUCCESS(HttpStatus.OK, "챌린지 참여 성공"),
+    CHALLENGE_PROOF_UPLOAD_SUCCESS(HttpStatus.OK, "챌린지 인증 업로드 성공"),
+    CHALLENGE_UPDATE_SUCCESS(HttpStatus.NO_CONTENT, "챌린지 업데이트 성공");
 
 
     private final HttpStatus httpStatus;
