@@ -7,9 +7,9 @@ import org.springframework.security.core.Authentication;
 
 import java.security.Principal;
 
-import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_NOT_FOUND;
-
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static com.fledge.fledgeserver.exception.ErrorCode.*;
 
 public class SecurityUtils {
 
@@ -66,6 +66,19 @@ public class SecurityUtils {
             throw new CustomException(MEMBER_NOT_FOUND);
         }
         return getCurrentUser().getMember();
+    }
+
+    public static boolean isCurrentUser(Long userId) {
+        Long currentUserId = getCurrentUserId();
+        return currentUserId != null && currentUserId.equals(userId);
+    }
+
+    public static Member checkAndGetCurrentUser(Long userId) {
+        if (!isCurrentUser(userId)) {
+            throw new CustomException(NO_ACCESS, "현재 유저 id와 일치하지 않습니다.");
+        }
+
+        return getCurrentMember();
     }
 
 }

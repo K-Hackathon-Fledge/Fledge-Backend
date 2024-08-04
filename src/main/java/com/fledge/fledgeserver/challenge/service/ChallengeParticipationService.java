@@ -9,6 +9,7 @@ import com.fledge.fledgeserver.challenge.repository.ChallengeProofRepository;
 import com.fledge.fledgeserver.challenge.dto.ChallengeParticipationResponse;
 import com.fledge.fledgeserver.challenge.entity.Challenge;
 import com.fledge.fledgeserver.challenge.entity.ChallengeProof;
+import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.exception.CustomException;
 import com.fledge.fledgeserver.exception.ErrorCode;
 import com.fledge.fledgeserver.member.entity.Member;
@@ -33,8 +34,8 @@ public class ChallengeParticipationService {
 
     @Transactional
     public ChallengeParticipationResponse participateInChallenge(Long memberId, Long challengeId, LocalDate startDate) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Member member = SecurityUtils.checkAndGetCurrentUser(memberId);
 
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));
