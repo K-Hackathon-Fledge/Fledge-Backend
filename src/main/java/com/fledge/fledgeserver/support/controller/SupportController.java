@@ -2,8 +2,11 @@ package com.fledge.fledgeserver.support.controller;
 
 import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.response.ApiResponse;
+import com.fledge.fledgeserver.response.SuccessStatus;
+import com.fledge.fledgeserver.support.dto.request.SupportPostUpdateRequest;
 import com.fledge.fledgeserver.support.dto.request.SupportRecordCreateRequest;
 import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequest;
+import com.fledge.fledgeserver.support.dto.response.SupportGetForUpdateResponse;
 import com.fledge.fledgeserver.support.dto.response.SupportPostGetResponse;
 import com.fledge.fledgeserver.support.dto.response.SupportRecordProgressGetResponse;
 import com.fledge.fledgeserver.support.service.SupportService;
@@ -43,9 +46,9 @@ public class SupportController {
             @PathVariable(value = "supportId") Long supportId
     ) {
         // TODO :: 후원 인증 관련 로직 추가
+        // TODO :: 후원 게시글 둘러보기를 후원하기 상세 페이지에서도 봐야함
         return ApiResponse.success(GET_SUPPORT_SUCCESS, supportService.getSupport(supportId));
     }
-    // TODO :: 후원 게시글 둘러보기를 후원하기 상세 페이지에서도 봐얗마
 
     @Operation(summary = "후원 물품 금액 후원하기",
             description = "후원하기 게시글에서 후원 물품 금액 조회합니다.(모든 회원 가능)")
@@ -70,52 +73,31 @@ public class SupportController {
         return ApiResponse.success(GET_SUPPORT_PROGRESS_SUCCESS, supportService.getSupportProgress(supportId));
     }
 
-//
-//    /**
-//     * UPDATE
-//     */
-//
-//    @Operation(summary = "후원하기 게시글 수정 시 기존 데이터 조회", description = "후원하기 게시글의 기존 데이터를 반환합니다.")
-//    @GetMapping("/{supportId}/update")
-//    public ResponseEntity<ApiResponse<SupportGetForUpdateResponse>> getSupportForUpdate(
-//            @PathVariable(value = "supportId") Long supportId,
-//            Principal principal
-//    ) {
-//        Long memberId = SecurityUtils.getCurrentUserId(principal);
-//        return ApiResponse.success(
-//                SuccessStatus.GET_SUPPORT_FOR_UPDATE_SUCCESS,
-//                supportService.getSupportForUpdate(memberId, supportId)
-//        );
-//    }
-//
-//    @Operation(summary = "후원하기 게시글 수정", description = "후원하기 게시글을 수정합니다.")
-//    @PutMapping("/{supportId}")
-//    public ResponseEntity<ApiResponse<SupportPostGetResponse>> updateSupport(
-//            Principal principal,
-//            @PathVariable(value = "supportId") Long supportId,
-//            @RequestBody SupportUpdateRequest supportUpdateRequestDto
-//    ) {
-//        Long memberId = SecurityUtils.getCurrentUserId(principal);
-//        supportService.updateSupport(memberId, supportId, supportUpdateRequestDto);
-//        return ApiResponse.success(SuccessStatus.UPDATE_SUPPORT_SUCCESS);
-//    }
+    @Operation(summary = "후원하기 게시글 수정 시 기존 데이터 조회",
+            description = "후원하기 게시글의 기존 데이터를 반환합니다.\nStatus가 PENDING이면 공통 필드 수정 가능, 그 외 수정 불가")
+    @GetMapping("/{supportId}/update")
+    public ResponseEntity<ApiResponse<SupportGetForUpdateResponse>> getSupportForUpdate(
+            @PathVariable(value = "supportId") Long supportId,
+            Principal principal
+    ) {
+        Long memberId = SecurityUtils.getCurrentUserId(principal);
+        return ApiResponse.success(
+                GET_SUPPORT_FOR_UPDATE_SUCCESS, supportService.getSupportForUpdate(supportId, memberId)
+        );
+    }
 
-    /**
-     * DELETE
-     */
+    @Operation(summary = "후원하기 게시글 수정", description = "후원하기 게시글을 수정합니다.")
+    @PutMapping("/{supportId}")
+    public ResponseEntity<ApiResponse<SupportPostGetResponse>> updateSupportPost(
+            Principal principal,
+            @PathVariable(value = "supportId") Long supportId,
+            @RequestBody SupportPostUpdateRequest supportPostUpdateRequest
+    ) {
+        Long memberId = SecurityUtils.getCurrentUserId(principal);
+        supportService.updateSupportPost(memberId, supportId, supportPostUpdateRequest);
+        return ApiResponse.success(SuccessStatus.UPDATE_SUPPORT_SUCCESS);
+    }
+
     // TODO :: 후원하기 게시글 삭제 API
-
-
-    /**
-     * ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ후원 하기ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-     */
-    /**
-     * 후원하기 팝업에서 정보 조회
-     */
-
-
-    /**
-     * 후원하기 시 후원 처리
-     */
 
 }

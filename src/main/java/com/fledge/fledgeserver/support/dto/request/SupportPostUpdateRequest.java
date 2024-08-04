@@ -15,7 +15,11 @@ import java.util.List;
 @Getter
 @Setter
 @Schema(description = "후원하기 게시글 수정 DTO")
-public class SupportUpdateRequest {
+public class SupportPostUpdateRequest {
+
+    @Schema(description = "게시글 카테고리", required = true, example = "MEDICAL")
+    @NotBlank(message = "게시글 카테고리는 필수입니다.")
+    private String supportCategory;
 
     @Schema(description = "후원 게시글 제목", required = true, example = "후원 요청")
     @NotBlank(message = "제목은 필수입니다.")
@@ -45,38 +49,40 @@ public class SupportUpdateRequest {
     @Schema(description = "후원 물품 이미지 리스트", required = true)
     private List<String> images;
 
-    @Schema(description = "후원 인증 기간", required = true, example = "30")
-    @NotBlank(message = "후원 인증 기간은 필수입니다.")
-    @Positive(message = "후원 인증 기간은 0보다 큰 값이어야 합니다.")
-    private int checkPeriod;
+    @Schema(description = "후원자와의 약속 타입", required = true)
+    @NotBlank(message = "후원자와의 약속 타입은 필수입니다.")
+    private String promise;
 
-    @Schema(description = "후원 인증 횟수", required = true, example = "1")
-    @NotBlank(message = "후원 인증 횟수는 필수입니다.")
-    @Positive(message = "후원 인증 횟수는 0보다 큰 값이어야 합니다.")
-    private int checkCount;
-
-    @Schema(description = "만료 시점", required = true, example = "2024-12-31")
+    @Schema(description = "후원 만료 시점", required = true, example = "2024-12-31")
     @NotBlank(message = "만료 시점은 필수입니다.")
     @Future(message = "만료 시점은 현재 시간 이후여야 합니다.")
     private LocalDate expirationDate;
 
-    @Schema(description = "수령인 이름", required = true, example = "홍길동")
+    @Schema(description = "은행 이름", example = "우리은행")
+    @NotBlank(message = "은행 이름은 필수입니다.")
+    private String bank;
+
+    @Schema(description = "계좌 번호", example = "123-456-789012")
+    @NotBlank(message = "계좌 번호는 필수입니다.")
+    private String account;
+
+    @Schema(description = "수령인 이름", example = "홍길동")
     @NotBlank(message = "수령인 이름은 필수입니다.")
     private String recipientName;
 
-    @Schema(description = "전화번호", required = true, example = "010-1234-5678")
+    @Schema(description = "전화번호", example = "010-1234-5678")
     @NotBlank(message = "전화번호는 필수입니다.")
     private String phone;
 
-    @Schema(description = "주소", required = true, example = "서울특별시 노원구 공릉로232")
+    @Schema(description = "주소", example = "서울특별시 노원구 공릉로232")
     @NotBlank(message = "주소는 필수입니다.")
     private String address;
 
-    @Schema(description = "상세 주소", required = true, example = "OO빌라 101호")
+    @Schema(description = "상세 주소", example = "OO빌라 101호")
     @NotBlank(message = "상세 주소는 필수입니다.")
     private String detailAddress;
 
-    @Schema(description = "우편번호", required = true, example = "123456")
+    @Schema(description = "우편번호", example = "123456")
     @NotBlank(message = "우편번호는 필수입니다.")
     private String zip;
 }

@@ -4,7 +4,7 @@ import com.fledge.fledgeserver.common.entity.BaseTimeEntity;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.promise.entity.Promise;
 import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequest;
-import com.fledge.fledgeserver.support.dto.request.SupportUpdateRequest;
+import com.fledge.fledgeserver.support.dto.request.SupportPostUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -124,19 +124,35 @@ public class SupportPost extends BaseTimeEntity {
         }
     }
 
-    public void update(SupportUpdateRequest supportUpdateRequest) {
-        this.title = supportUpdateRequest.getTitle();
-        this.reason = supportUpdateRequest.getReason();
-        this.item = supportUpdateRequest.getItem();
-        this.purchaseUrl = supportUpdateRequest.getPurchaseUrl();
-        this.price = supportUpdateRequest.getPrice();
-        this.recipientName = supportUpdateRequest.getRecipientName();
-        this.phone = supportUpdateRequest.getPhone();
-        this.address = supportUpdateRequest.getAddress();
-        this.detailAddress = supportUpdateRequest.getDetailAddress();
-        this.zip = supportUpdateRequest.getZip();
-        this.expirationDate = supportUpdateRequest.getExpirationDate();
+    public void updateAll(SupportPostUpdateRequest supportPostUpdateRequest) {
+        this.supportCategory = SupportCategory.valueOf(supportPostUpdateRequest.getSupportCategory());
+        this.title = supportPostUpdateRequest.getTitle();
+        this.reason = supportPostUpdateRequest.getReason();
+        this.item = supportPostUpdateRequest.getItem();
+        this.purchaseUrl = supportPostUpdateRequest.getPurchaseUrl();
+        this.price = supportPostUpdateRequest.getPrice();
+        this.promise = Promise.valueOf(supportPostUpdateRequest.getPromise());
+        this.expirationDate = supportPostUpdateRequest.getExpirationDate();
+        this.bank = supportPostUpdateRequest.getBank();
+        this.account = supportPostUpdateRequest.getAccount();
+        this.recipientName = supportPostUpdateRequest.getRecipientName();
+        this.phone = supportPostUpdateRequest.getPhone();
+        this.address = supportPostUpdateRequest.getAddress();
+        this.detailAddress = supportPostUpdateRequest.getDetailAddress();
+        this.zip = supportPostUpdateRequest.getZip();
     }
+
+    public void updateNotPending(SupportPostUpdateRequest supportPostUpdateRequest) {
+        this.bank = supportPostUpdateRequest.getBank();
+        this.account = supportPostUpdateRequest.getAccount();
+        this.recipientName = supportPostUpdateRequest.getRecipientName();
+        this.phone = supportPostUpdateRequest.getPhone();
+        this.address = supportPostUpdateRequest.getAddress();
+        this.detailAddress = supportPostUpdateRequest.getDetailAddress();
+        this.zip = supportPostUpdateRequest.getZip();
+    }
+
+
 
     public void support() {
         this.supportPostStatus = SupportPostStatus.IN_PROGRESS;

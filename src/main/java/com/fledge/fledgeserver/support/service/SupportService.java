@@ -6,19 +6,20 @@ import com.fledge.fledgeserver.file.FileService;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.member.entity.Role;
 import com.fledge.fledgeserver.member.repository.MemberRepository;
+import com.fledge.fledgeserver.support.dto.request.SupportPostUpdateRequest;
 import com.fledge.fledgeserver.support.dto.request.SupportRecordCreateRequest;
 import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequest;
+import com.fledge.fledgeserver.support.dto.response.SupportGetForUpdateResponse;
 import com.fledge.fledgeserver.support.dto.response.SupportPostGetResponse;
 import com.fledge.fledgeserver.support.dto.response.SupportRecordProgressGetResponse;
-import com.fledge.fledgeserver.support.entity.SupportPost;
-import com.fledge.fledgeserver.support.entity.SupportImage;
-import com.fledge.fledgeserver.support.entity.SupportRecord;
+import com.fledge.fledgeserver.support.entity.*;
 import com.fledge.fledgeserver.support.repository.SupportRecordRepository;
 import com.fledge.fledgeserver.support.repository.SupportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -72,6 +73,7 @@ public class SupportService {
                 .collect(Collectors.toList()); // 최종 리스트로 수집
 
         return new SupportPostGetResponse(
+                supportId,
                 supportPost.getMember().getId(),
                 supportPost.getMember().getNickname(),
                 supportPost.getTitle(),
@@ -134,54 +136,73 @@ public class SupportService {
 
         return new SupportRecordProgressGetResponse(totalPrice, supportPrice);
     }
-//    public SupportGetForUpdateResponse getSupportForUpdate(Long memberId, Long supportId) {
-//        Support support = supportRepository.findSupportByIdWithFetch(supportId)
-//                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
-//
-//        if (support.getMember().getId() != memberId) {
-//            throw new CustomException(ErrorCode.NO_ACCESS);
-//        }
-//
-//        // 이미지를 Presigned URL로 처리
-//        List<String> imageUrls = support.getImages().stream()
-//                .map(supportImage -> fileService.getFileUrl(supportImage.getImageUrl()))
-//                .toList();
-//
-//        return new SupportGetForUpdateResponse(
-//                support.getMember().getId(),
-//                support.getMember().getNickname(),
-//                support.getTitle(),
-//                support.getReason(),
-//                support.getItem(),
-//                support.getPurchaseUrl(),
-//                support.getPrice(),
-//                imageUrls,
-//                support.getCheckPeriod(),
-//                support.getCheckCount(),
-//                support.getExpirationDate()
-//        );
-//    }
-//
-//    public void updateSupport(Long memberId, Long supportId, SupportUpdateRequest supportUpdateRequestDto) {
-//        Support support = supportRepository.findSupportByIdWithFetch(supportId)
-//                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
-//
-//        if (support.getMember().getId() != memberId) {
-//            throw new CustomException(ErrorCode.NO_ACCESS);
-//        }
-//        support.update(supportUpdateRequestDto);
-//        support.getImages().clear();
-//
-//        List<SupportImage> newImages = supportUpdateRequestDto.getImages().stream()
-//                .map(imageUrl -> new SupportImage(support, imageUrl))
-//                .toList();
-//
-//        support.getImages().addAll(newImages);
-//
-//        // 5. 기존 이미지 삭제
-//        support.getImages().clear(); // 기존 이미지 제거
-//
-//        // 6. 새로운 이미지 추가
-//        support.getImages().addAll(newImages);
-//    }
+
+    @Transactional(readOnly = true)
+    public SupportGetForUpdateResponse getSupportForUpdate(Long supportId, Long memberId) {
+        SupportPost supportPost = supportRepository.findSupportByIdWithFetch(supportId)
+                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
+
+        if (!supportPost.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.NO_ACCESS);
+        }
+
+        // DTO에 필요한 정보 추출 -> Category 기준으로 프론트에서 막음
+        SupportCategory supportCategory = supportPost.getSupportCategory();
+        String supportPostStatus = String.valueOf(supportPost.getSupportPostStatus());
+        Long MemberId = supportPost.getMember().getId();
+        String nickname = supportPost.getMember().getNickname();
+        String title = supportPost.getTitle();
+        String reason = supportPost.getReason();
+        String item = supportPost.getItem();
+        String purchaseUrl = supportPost.getPurchaseUrl();
+        int price = supportPost.getPrice();
+        List<String> images = supportPost.getImages().stream().map(SupportImage::getImageUrl).collect(Collectors.toList()); // SupportImage에서 URL 추출
+        String promise = String.valueOf(supportPost.getPromise());
+        LocalDate expirationDate = supportPost.getExpirationDate();
+
+        // 카테고리에 따라 응답 데이터 설정
+        String bank = null;
+        String account = null;
+
+        String recipientName = null;
+        String phone = null;
+        String address = null;
+        String detailAddress = null;
+        String zip = null;
+
+        if (supportCategory == SupportCategory.MEDICAL || supportCategory == SupportCategory.LEGAL_AID) {
+            bank = supportPost.getBank();
+            account = supportPost.getAccount();
+        } else {
+            recipientName = supportPost.getRecipientName();
+            phone = supportPost.getPhone();
+            address = supportPost.getAddress();
+            detailAddress = supportPost.getDetailAddress();
+            zip = supportPost.getZip();
+        }
+
+        return new SupportGetForUpdateResponse(supportId, String.valueOf(supportCategory), supportPostStatus, MemberId, nickname, title, reason, item, purchaseUrl, price, images, promise, expirationDate, bank, account, recipientName, phone, address, detailAddress, zip);
+    }
+
+    @Transactional
+    public void updateSupportPost(Long memberId, Long supportId, SupportPostUpdateRequest supportPostUpdateRequestDto) {
+        SupportPost supportPost = supportRepository.findSupportByIdWithFetch(supportId)
+                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
+        if (supportPost.getMember().getId() != memberId) {
+            throw new CustomException(ErrorCode.NO_ACCESS);
+        }
+
+        if ("PENDING".equals(supportPost.getSupportPostStatus())) {
+            supportPost.updateAll(supportPostUpdateRequestDto);
+
+            // Clear existing images and add new ones
+            supportPost.getImages().clear();
+            List<SupportImage> newImages = supportPostUpdateRequestDto.getImages().stream()
+                    .map(imageUrl -> new SupportImage(supportPost, imageUrl))
+                    .toList();
+            supportPost.getImages().addAll(newImages);
+        } else {
+            supportPost.updateNotPending(supportPostUpdateRequestDto);
+        }
+    }
 }
