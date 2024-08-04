@@ -11,6 +11,7 @@ import java.util.List;
 public interface SupportRecordRepository extends JpaRepository<SupportRecord, Long> {
     List<SupportRecord> findAllBySupportPost(SupportPost supportPost);
 
-    @Query("SELECT SUM(sr.amount) FROM SupportRecord sr WHERE sr.supportPost.id = :supportPostId")
+    // null반환
+    @Query("SELECT COALESCE(SUM(sr.amount), 0) FROM SupportRecord sr WHERE sr.supportPost.id = :supportPostId")
     int sumSupportedPriceBySupportPostId(@Param("supportPostId") Long supportPostId);
 }
