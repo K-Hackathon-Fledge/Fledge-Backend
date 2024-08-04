@@ -211,40 +211,46 @@ public class SupportService {
 
     @Transactional(readOnly = true)
     public PostTotalPagingResponse pagingSupportPost(int page, String q, List<String> category, String status) {
-        // 첫 번째 페이지 인덱스: 0, limit = 9 고정
         PageRequest pageable = PageRequest.of(page, 9);
 
+        // 카테고리가 비어있을 때 null로 설정
         List<SupportCategory> selectedCategories = category.isEmpty() ? null : category.stream()
                 .map(SupportCategory::valueOf)
                 .collect(Collectors.toList());
 
-        Page<SupportPost> supportPostPage = supportPostRepository.findByCategoryAndSearchAAndSupportPostStatus(selectedCategories, q, status, pageable);
-
+        // 쿼리 실행
+        Page<SupportPost> supportPostPage = supportPostRepository.findByCategoryAndSearchAndSupportPostStatusWithImages(selectedCategories, q, status, pageable);
+        long totalElements = supportPostPage.getTotalElements();
+        // 게시물 응답 리스트 생성
         List<PostPagingResponse> postPagingResponse = supportPostPage.getContent().stream()
                 .map(supportPost -> {
                     int totalPrice = supportPost.getPrice();
-                    int supportedPrice = supportRecordRepository.sumSupportedPriceBySupportPostId(supportPost.getId());
-
+                    int supportedPrice = supportPost.getSupportRecords().stream()
+                            .mapToInt(SupportRecord::getAmount)
+                            .sum();
                     RecordProgressGetResponse supportRecordProgress = new RecordProgressGetResponse(totalPrice, supportedPrice);
-
                     return new PostPagingResponse(
                             supportPost.getId(),
                             supportPost.getTitle(),
                             supportPost.getExpirationDate(),
-                            fileService.getFileUrl(supportImageRepository.findFirstImageBySupportPostIdOrThrow(supportPost.getId()).getImageUrl()),
+                            fileService.getFileUrl(supportPost.getImages().get(0).getImageUrl()),
                             supportRecordProgress
                     );
                 })
                 .collect(Collectors.toList());
+
         int totalPages = supportPostPage.getTotalPages();
-        return new PostTotalPagingResponse(totalPages, postPagingResponse);
+
+        return new PostTotalPagingResponse((int) totalElements, totalPages, postPagingResponse);
     }
+
 
     @Transactional(readOnly = true)
     public PostTotalPagingResponse deadlineApproachingPosts(int page) {
         PageRequest pageable = PageRequest.of(page, 4); // 페이지 크기를 4로 설정
         Page<SupportPost> supportPostPage = supportPostRepository.findByExpirationDateWithinSevenDays(pageable);
 
+        long totalElements = supportPostPage.getTotalElements();
         List<PostPagingResponse> supportPosts = supportPostPage.getContent().stream()
                 .map(supportPost -> {
                     int totalPrice = supportPost.getPrice();
@@ -261,8 +267,8 @@ public class SupportService {
                     );
                 })
                 .collect(Collectors.toList());
-
+        int totalPages = supportPostPage.getTotalPages();
         // 총 페이지 수와 게시글 목록으로 응답 객체 생성
-        return new PostTotalPagingResponse(supportPostPage.getTotalPages(), supportPosts);
+        return new PostTotalPagingResponse((int) totalElements, totalPages, supportPosts);
     }
 }
