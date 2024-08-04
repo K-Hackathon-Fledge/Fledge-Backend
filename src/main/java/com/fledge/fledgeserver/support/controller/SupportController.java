@@ -58,7 +58,6 @@ public class SupportController {
             Principal principal
     ) {
         Long memberId = SecurityUtils.getCurrentUserId(principal);
-        // 후원 로직 처리
         supportService.createSupportRecord(supportId, donationRequestDto, memberId);
         return ApiResponse.success(CREATE_DONATE_SUCCESS);
     }
@@ -110,6 +109,19 @@ public class SupportController {
             @RequestParam(defaultValue = "") List<String> category, // 카테고리
             @RequestParam(defaultValue = "") String status
     ) {
+        // 응답에 이미지 포함 시키기
         return ApiResponse.success(GET_SUPPORT_POST_PAGING_SUCCESS, supportService.pagingSupportPost(page-1, q, category, status));
     }
+
+    @Operation(summary = "마감 임박한 후원하기 게시글",
+            description = "4개씩 D-7까지(limit=4, leftDays=7)")
+    @GetMapping("/deadline")
+    public ResponseEntity<ApiResponse<PostTotalPagingResponse>> deadlineApproachingPosts(
+            @RequestParam(defaultValue = "1") int page
+//            @RequestParam(defaultValue = "10") int limit // 무조건 4개
+    ) {
+        return ApiResponse.success(GET_DEADLINE_APPROACHING_POST_SUCCESS, supportService.deadlineApproachingPosts(page-1));
+    }
+
+
 }

@@ -19,12 +19,18 @@ public class PostPagingResponse {
     private String leftDays;
 
     @Schema(description = "", example = "")
+    private String supportPostImageUrl;
+
+    @Schema(description = "", example = "")
     private RecordProgressGetResponse supportRecord;
 
-    public PostPagingResponse(Long supportId, String title, LocalDate expirationDate, RecordProgressGetResponse supportRecord) {
+
+
+    public PostPagingResponse(Long supportId, String title, LocalDate expirationDate, String supportPostImageUrl, RecordProgressGetResponse supportRecord) {
         this.supportId = supportId;
         this.title = title;
         this.leftDays = String.valueOf(ChronoUnit.DAYS.between(LocalDate.now(), expirationDate));
+        this.supportPostImageUrl = supportPostImageUrl;
         this.supportRecord = supportRecord;
     }
 }

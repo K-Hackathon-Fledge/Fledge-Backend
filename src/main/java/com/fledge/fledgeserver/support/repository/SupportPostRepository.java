@@ -45,4 +45,7 @@ public interface SupportPostRepository extends JpaRepository<SupportPost, Long> 
                                               Pageable pageable);
 
 
+    @Query("SELECT sp FROM SupportPost sp WHERE FUNCTION('DATEDIFF', sp.expirationDate, CURRENT_DATE) <= 7")
+    Page<SupportPost> findByExpirationDateWithinSevenDays(Pageable pageable);
+
 }

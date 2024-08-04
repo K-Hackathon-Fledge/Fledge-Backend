@@ -11,6 +11,7 @@ import com.fledge.fledgeserver.support.dto.request.RecordCreateRequest;
 import com.fledge.fledgeserver.support.dto.request.PostCreateRequest;
 import com.fledge.fledgeserver.support.dto.response.*;
 import com.fledge.fledgeserver.support.entity.*;
+import com.fledge.fledgeserver.support.repository.SupportImageRepository;
 import com.fledge.fledgeserver.support.repository.SupportRecordRepository;
 import com.fledge.fledgeserver.support.repository.SupportPostRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +28,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SupportService {
+    private final FileService fileService;
     private final MemberRepository memberRepository;
     private final SupportPostRepository supportPostRepository;
-    private final FileService fileService;
     private final SupportRecordRepository supportRecordRepository;
+    private final SupportImageRepository supportImageRepository;
 
     @Transactional
     public void createSupport(Long memberId, PostCreateRequest postCreateRequest) {
@@ -229,11 +231,38 @@ public class SupportService {
                             supportPost.getId(),
                             supportPost.getTitle(),
                             supportPost.getExpirationDate(),
+                            fileService.getFileUrl(supportImageRepository.findFirstImageBySupportPostIdOrThrow(supportPost.getId()).getImageUrl()),
                             supportRecordProgress
                     );
                 })
                 .collect(Collectors.toList());
         int totalPages = supportPostPage.getTotalPages();
         return new PostTotalPagingResponse(totalPages, postPagingResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public PostTotalPagingResponse deadlineApproachingPosts(int page) {
+        PageRequest pageable = PageRequest.of(page, 4); // 페이지 크기를 4로 설정
+        Page<SupportPost> supportPostPage = supportPostRepository.findByExpirationDateWithinSevenDays(pageable);
+
+        List<PostPagingResponse> supportPosts = supportPostPage.getContent().stream()
+                .map(supportPost -> {
+                    int totalPrice = supportPost.getPrice();
+                    int supportedPrice = supportRecordRepository.sumSupportedPriceBySupportPostId(supportPost.getId());
+
+                    RecordProgressGetResponse supportRecordProgress = new RecordProgressGetResponse(totalPrice, supportedPrice);
+
+                    return new PostPagingResponse(
+                            supportPost.getId(),
+                            supportPost.getTitle(),
+                            supportPost.getExpirationDate(),
+                            fileService.getFileUrl(supportImageRepository.findFirstImageBySupportPostIdOrThrow(supportPost.getId()).getImageUrl()),
+                            supportRecordProgress
+                    );
+                })
+                .collect(Collectors.toList());
+
+        // 총 페이지 수와 게시글 목록으로 응답 객체 생성
+        return new PostTotalPagingResponse(supportPostPage.getTotalPages(), supportPosts);
     }
 }
