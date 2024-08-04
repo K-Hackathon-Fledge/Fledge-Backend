@@ -52,6 +52,7 @@ public class ChallengeService {
                 challenge.getTitle(),
                 challenge.getLikeCount(),
                 challenge.getCategories(),
+                challenge.getType().name(),
                 challenge.getDescription(),
                 (double) challenge.getSuccessCount() / challenge.getParticipantCount(),
                 challenge.getParticipantCount()
@@ -72,6 +73,7 @@ public class ChallengeService {
                 challenge.getTitle(),
                 challenge.getLikeCount(),
                 challenge.getCategories(),
+                challenge.getType().name(),
                 challenge.getDescription(),
                 (double) challenge.getSuccessCount() / challenge.getParticipantCount(),
                 challenge.getParticipantCount(),

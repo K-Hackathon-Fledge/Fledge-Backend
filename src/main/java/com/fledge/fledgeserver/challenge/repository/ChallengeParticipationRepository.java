@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ChallengeParticipationRepository extends JpaRepository<ChallengeParticipation, Long> {
 
-    @Query("SELECT p.member.id AS memberId, COUNT(p) AS participationCount, SUM(CASE WHEN p.isSuccess = true THEN 1 ELSE 0 END) AS successCount, " +
+    @Query("SELECT p.member.id AS memberId, p.member.nickname AS nickname, COUNT(p) AS participationCount, SUM(CASE WHEN p.isSuccess = true THEN 1 ELSE 0 END) AS successCount, " +
             "(SUM(CASE WHEN p.isSuccess = true THEN 1 ELSE 0 END) * 1.0 / COUNT(p)) AS successRate " +
             "FROM ChallengeParticipation p " +
             "GROUP BY p.member.id " +

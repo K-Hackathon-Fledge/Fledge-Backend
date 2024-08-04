@@ -98,13 +98,14 @@ public class ChallengeParticipationService {
         return topParticipants.stream()
                 .map(row -> {
                     Long memberId = (Long) row[0];
-                    Long participationCount = (Long) row[1];
-                    Long successCount = (Long) row[2];
-                    Double successRate = ((Number) row[3]).doubleValue() * 100;
+                    String memberNickname = (String) row[1];
+                    Long participationCount = (Long) row[2];
+                    Long successCount = (Long) row[3];
+                    Double successRate = ((Number) row[4]).doubleValue() * 100;
 
                     List<String> topCategories = participationRepository.findTopCategoriesByMemberId(memberId);
 
-                    return new TopParticipantResponse(memberId, participationCount, successCount, successRate, topCategories);
+                    return new TopParticipantResponse(memberId, memberNickname, participationCount, successCount, successRate, topCategories);
                 })
                 .collect(Collectors.toList());
     }
