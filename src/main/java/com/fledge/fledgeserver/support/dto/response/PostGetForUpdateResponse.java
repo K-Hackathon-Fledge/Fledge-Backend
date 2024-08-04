@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Schema(description = "후원하기 게시글 수정 시 기존 데이터 조회 DTO")
-public class SupportGetForUpdateResponse {
+public class PostGetForUpdateResponse {
 
     @Schema(description = "게시글 ID", example = "2")
     private Long supportPostId;
@@ -73,7 +73,7 @@ public class SupportGetForUpdateResponse {
     @Schema(description = "우편번호", example = "06123")
     private String zip;
 
-    public SupportGetForUpdateResponse(Long supportPostId, String supportCategory, String supportPostStatus,Long memberId, String nickname, String title, String reason, String item, String purchaseUrl, int price, List<String> images, String promise, LocalDate expirationDate, String bank, String account, String recipientName, String phone, String address, String detailAddress, String zip) {
+    public PostGetForUpdateResponse(Long supportPostId, String supportCategory, String supportPostStatus, Long memberId, String nickname, String title, String reason, String item, String purchaseUrl, int price, List<String> images, String promise, LocalDate expirationDate, String bank, String account, String recipientName, String phone, String address, String detailAddress, String zip) {
         this.supportPostId = supportPostId;
         this.supportCategory = supportCategory;
         this.supportPostStatus = supportPostStatus;

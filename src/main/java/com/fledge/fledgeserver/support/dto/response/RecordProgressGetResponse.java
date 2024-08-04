@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Schema(description = "후원 게시글 조회 시 후원 기록 반환")
-public class SupportRecordProgressGetResponse {
+public class RecordProgressGetResponse {
 
     @Schema(description = "후원 물품 총 금액", example = "1000000")
     private int totalPrice;
@@ -17,7 +17,7 @@ public class SupportRecordProgressGetResponse {
     private double progress;
 
 
-    public SupportRecordProgressGetResponse(int totalPrice, int supportedPrice) {
+    public RecordProgressGetResponse(int totalPrice, int supportedPrice) {
         this.totalPrice = totalPrice;
         this.supportedPrice = supportedPrice;
         // 진행률 계산

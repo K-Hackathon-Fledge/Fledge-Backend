@@ -8,7 +8,7 @@ import java.time.temporal.ChronoUnit;
 
 @Getter
 @Schema(description = "후원하기 게시글 Paging")
-public class SupportPostPagingResponse {
+public class PostPagingResponse {
     @Schema(description = "", example = "")
     private Long supportId;
 
@@ -19,9 +19,9 @@ public class SupportPostPagingResponse {
     private String leftDays;
 
     @Schema(description = "", example = "")
-    private SupportRecordProgressGetResponse supportRecord;
+    private RecordProgressGetResponse supportRecord;
 
-    public SupportPostPagingResponse(Long supportId, String title, LocalDate expirationDate, SupportRecordProgressGetResponse supportRecord) {
+    public PostPagingResponse(Long supportId, String title, LocalDate expirationDate, RecordProgressGetResponse supportRecord) {
         this.supportId = supportId;
         this.title = title;
         this.leftDays = String.valueOf(ChronoUnit.DAYS.between(LocalDate.now(), expirationDate));

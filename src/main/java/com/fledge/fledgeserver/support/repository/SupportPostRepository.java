@@ -13,7 +13,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface SupportRepository extends JpaRepository<SupportPost, Long> {
+public interface SupportPostRepository extends JpaRepository<SupportPost, Long> {
     /**
      *  한방 쿼리: Fetch Join
      */
@@ -32,7 +32,8 @@ public interface SupportRepository extends JpaRepository<SupportPost, Long> {
 
     @Query("SELECT sp FROM SupportPost sp " +
             "WHERE (:category IS NULL OR sp.supportCategory IN :category) " + // 카테고리 필터링
-            "AND (sp.title LIKE %:q% OR sp.reason LIKE %:q%)") // 제목 및 이유 필터링
+            "AND (sp.title LIKE %:q% OR sp.reason LIKE %:q%)" + // 제목 및 이유 필터링
+            "ORDER BY sp.createdDate DESC") // 내림차순
     Page<SupportPost> findByCategoryAndSearch(@Param("category") List<SupportCategory> category,
                                               @Param("q") String q,
                                               Pageable pageable);
