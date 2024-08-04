@@ -45,7 +45,6 @@ public class SupportController {
             @PathVariable(value = "supportId") Long supportId
     ) {
         // TODO :: 후원 인증 관련 로직 추가
-        // TODO :: 후원 게시글 둘러보기를 후원하기 상세 페이지에서도 봐야함
         return ApiResponse.success(GET_SUPPORT_SUCCESS, supportService.getSupport(supportId));
     }
 
@@ -85,7 +84,7 @@ public class SupportController {
     }
 
     @Operation(summary = "후원하기 게시글 수정", description = "(이미지 업데이트 안됨)후원하기 게시글을 수정합니다.")
-    @PutMapping("/{supportId}")
+    @PatchMapping("/{supportId}")
     public ResponseEntity<ApiResponse<PostGetResponse>> updateSupportPost(
             Principal principal,
             @PathVariable(value = "supportId") Long supportId,
@@ -95,16 +94,13 @@ public class SupportController {
         supportService.updateSupportPost(memberId, supportId, postUpdateRequest);
         return ApiResponse.success(SuccessStatus.UPDATE_SUPPORT_SUCCESS);
     }
-
     // TODO :: 후원하기 게시글 삭제 API
-
-
     @Operation(summary = "후원하기 게시글 리스트 페이징",
             description = "q:검색어(제목,내용), category:카테고리 그리고 상태:status('ing'/'end') 기준으로 조회.")
     @GetMapping("/paging")
     public ResponseEntity<ApiResponse<PostTotalPagingResponse>> pagingSupportPost(
             @RequestParam(defaultValue = "1") int page, // 현재 페이지
-//            @RequestParam(defaultValue = "10") int limit //무조건 9개
+//            @RequestParam(defaultValue = "9") int limit //무조건 9개
             @RequestParam(defaultValue = "") String q,
             @RequestParam(defaultValue = "") List<String> category, // 카테고리
             @RequestParam(defaultValue = "ing") String status

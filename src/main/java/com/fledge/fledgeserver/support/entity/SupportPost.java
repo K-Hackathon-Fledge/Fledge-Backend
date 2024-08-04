@@ -6,10 +6,7 @@ import com.fledge.fledgeserver.promise.entity.Promise;
 import com.fledge.fledgeserver.support.dto.request.PostCreateRequest;
 import com.fledge.fledgeserver.support.dto.request.PostUpdateRequest;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,6 +15,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 public class SupportPost extends BaseTimeEntity {
 
     @Id

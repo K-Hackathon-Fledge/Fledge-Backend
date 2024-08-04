@@ -192,22 +192,39 @@ public class SupportService {
     public void updateSupportPost(Long memberId, Long supportId, PostUpdateRequest postUpdateRequestDto) {
         SupportPost supportPost = supportPostRepository.findSupportByIdWithFetch(supportId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
-        if (supportPost.getMember().getId() != memberId) {
+
+        // Validate access rights
+        if (!supportPost.getMember().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.NO_ACCESS);
         }
-
-        if ("PENDING".equals(supportPost.getSupportPostStatus())) {
+        System.out.println("HI1");
+        // Update logic based on status
+        if (SupportPostStatus.PENDING.equals(supportPost.getSupportPostStatus())) {
+            System.out.println("HI2");
             supportPost.updateAll(postUpdateRequestDto);
-
-            supportPost.getImages().clear();
-            List<SupportImage> newImages = postUpdateRequestDto.getImages().stream()
-                    .map(imageUrl -> new SupportImage(supportPost, imageUrl))
-                    .toList();
-            supportPost.getImages().addAll(newImages);
+            System.out.println("HI3");
+            clearAndUpdateImages(supportPost, postUpdateRequestDto);
+            System.out.println("HI4");
         } else {
+            System.out.println("HI5");
             supportPost.updateNotPending(postUpdateRequestDto);
+            System.out.println("HI6");
         }
     }
+
+    // Method to handle clearing and updating images
+    private void clearAndUpdateImages(SupportPost supportPost, PostUpdateRequest postUpdateRequestDto) {
+        // Clear existing images
+        supportPost.getImages().clear();
+
+        // Create new SupportImage instances and add them to the supportPost
+        List<SupportImage> newImages = postUpdateRequestDto.getImages().stream()
+                .map(imageUrl -> new SupportImage(supportPost, imageUrl))
+                .collect(Collectors.toList());
+
+        supportPost.getImages().addAll(newImages);
+    }
+
 
     @Transactional(readOnly = true)
     public PostTotalPagingResponse pagingSupportPost(int page, String q, List<String> category, String status) {
