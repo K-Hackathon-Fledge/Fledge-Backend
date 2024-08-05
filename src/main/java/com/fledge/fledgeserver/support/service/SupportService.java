@@ -246,11 +246,12 @@ public class SupportService {
                             .mapToInt(SupportRecord::getAmount)
                             .sum();
                     RecordProgressGetResponse supportRecordProgress = new RecordProgressGetResponse(totalPrice, supportedPrice);
+                    String imageUrl = supportPost.getImages().isEmpty() ? null : fileService.getFileUrl(supportPost.getImages().get(0).getImageUrl());
                     return new PostPagingResponse(
                             supportPost.getId(),
                             supportPost.getTitle(),
                             supportPost.getExpirationDate(),
-                            fileService.getFileUrl(supportPost.getImages().get(0).getImageUrl()),
+                            imageUrl,
                             supportRecordProgress
                     );
                 })
@@ -264,7 +265,7 @@ public class SupportService {
 
     @Transactional(readOnly = true)
     public PostTotalPagingResponse deadlineApproachingPosts(int page) {
-        PageRequest pageable = PageRequest.of(page, 4); // 페이지 크기를 4로 설정
+        PageRequest pageable = PageRequest.of(page, 4); // Set page size to 4
         Page<SupportPost> supportPostPage = supportPostRepository.findByExpirationDateWithinSevenDays(pageable);
 
         long totalElements = supportPostPage.getTotalElements();
@@ -275,17 +276,22 @@ public class SupportService {
 
                     RecordProgressGetResponse supportRecordProgress = new RecordProgressGetResponse(totalPrice, supportedPrice);
 
+                    // Attempt to find the first image, which may return null
+                    SupportImage supportImage = supportImageRepository.findFirstImageBySupportPostIdOrDefault(supportPost.getId());
+                    String imageUrl = (supportImage != null) ? fileService.getFileUrl(supportImage.getImageUrl()) : null; // Set to null if no image found
+
                     return new PostPagingResponse(
                             supportPost.getId(),
                             supportPost.getTitle(),
                             supportPost.getExpirationDate(),
-                            fileService.getFileUrl(supportImageRepository.findFirstImageBySupportPostIdOrThrow(supportPost.getId()).getImageUrl()),
+                            imageUrl,
                             supportRecordProgress
                     );
                 })
                 .collect(Collectors.toList());
         int totalPages = supportPostPage.getTotalPages();
-        // 총 페이지 수와 게시글 목록으로 응답 객체 생성
+        // Create and return response object with total pages and post list
         return new PostTotalPagingResponse((int) totalElements, totalPages, supportPosts);
     }
+
 }

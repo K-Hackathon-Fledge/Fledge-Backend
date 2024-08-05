@@ -13,8 +13,7 @@ public interface SupportImageRepository extends JpaRepository<SupportImage, Long
     @Query("SELECT si FROM SupportImage si WHERE si.supportPost.id = :supportPostId ORDER BY si.id ASC")
     Optional<SupportImage> findFirstImageBySupportPostId(@Param("supportPostId") Long supportPostId);
 
-    default SupportImage findFirstImageBySupportPostIdOrThrow(@Param("supportPostId") Long supportPostId) {
-        return findFirstImageBySupportPostId(supportPostId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.POST_IMAGE_NOT_FOUND.getMessage()));
+    default SupportImage findFirstImageBySupportPostIdOrDefault(Long supportPostId) {
+        return findFirstImageBySupportPostId(supportPostId).orElse(null);
     }
 }
