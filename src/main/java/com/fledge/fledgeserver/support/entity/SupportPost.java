@@ -3,13 +3,10 @@ package com.fledge.fledgeserver.support.entity;
 import com.fledge.fledgeserver.common.entity.BaseTimeEntity;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.promise.entity.Promise;
-import com.fledge.fledgeserver.support.dto.request.SupportPostCreateRequest;
-import com.fledge.fledgeserver.support.dto.request.SupportPostUpdateRequest;
+import com.fledge.fledgeserver.support.dto.request.PostCreateRequest;
+import com.fledge.fledgeserver.support.dto.request.PostUpdateRequest;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,6 +15,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 public class SupportPost extends BaseTimeEntity {
 
     @Id
@@ -94,62 +92,62 @@ public class SupportPost extends BaseTimeEntity {
     // TODO :: 챌린지 구현 후 참여 중이거나 완료한 챌린지(뱃지)에 대한 로직 추가
 
     @Builder
-    public SupportPost(Member member, SupportPostCreateRequest supportPostCreateRequest) {
+    public SupportPost(Member member, PostCreateRequest postCreateRequest) {
         this.member = member;
-        this.title = supportPostCreateRequest.getTitle();
-        this.reason = supportPostCreateRequest.getReason();
-        this.item = supportPostCreateRequest.getItem();
-        this.purchaseUrl = supportPostCreateRequest.getPurchaseUrl();
-        this.price = supportPostCreateRequest.getPrice();
-        this.expirationDate = supportPostCreateRequest.getExpirationDate();
-        this.promise = Promise.valueOf(supportPostCreateRequest.getPromise());
-        this.supportCategory = SupportCategory.valueOf(supportPostCreateRequest.getSupportCategory());
+        this.title = postCreateRequest.getTitle();
+        this.reason = postCreateRequest.getReason();
+        this.item = postCreateRequest.getItem();
+        this.purchaseUrl = postCreateRequest.getPurchaseUrl();
+        this.price = postCreateRequest.getPrice();
+        this.expirationDate = postCreateRequest.getExpirationDate();
+        this.promise = Promise.valueOf(postCreateRequest.getPromise());
+        this.supportCategory = SupportCategory.valueOf(postCreateRequest.getSupportCategory());
 
         if ("MEDICAL".equals(supportCategory.name()) || "LEGAL_AID".equals(supportCategory.name())) {
-            this.bank = supportPostCreateRequest.getBank();
-            this.account = supportPostCreateRequest.getAccount();
+            this.bank = postCreateRequest.getBank();
+            this.account = postCreateRequest.getAccount();
             this.recipientName = null;
             this.phone = null;
             this.address = null;
             this.detailAddress = null;
             this.zip = null;
         } else {
-            this.recipientName = supportPostCreateRequest.getRecipientName();
-            this.phone = supportPostCreateRequest.getPhone();
-            this.address = supportPostCreateRequest.getAddress();
-            this.detailAddress = supportPostCreateRequest.getDetailAddress();
-            this.zip = supportPostCreateRequest.getZip();
+            this.recipientName = postCreateRequest.getRecipientName();
+            this.phone = postCreateRequest.getPhone();
+            this.address = postCreateRequest.getAddress();
+            this.detailAddress = postCreateRequest.getDetailAddress();
+            this.zip = postCreateRequest.getZip();
             this.bank = null;
             this.account = null;
         }
     }
 
-    public void updateAll(SupportPostUpdateRequest supportPostUpdateRequest) {
-        this.supportCategory = SupportCategory.valueOf(supportPostUpdateRequest.getSupportCategory());
-        this.title = supportPostUpdateRequest.getTitle();
-        this.reason = supportPostUpdateRequest.getReason();
-        this.item = supportPostUpdateRequest.getItem();
-        this.purchaseUrl = supportPostUpdateRequest.getPurchaseUrl();
-        this.price = supportPostUpdateRequest.getPrice();
-        this.promise = Promise.valueOf(supportPostUpdateRequest.getPromise());
-        this.expirationDate = supportPostUpdateRequest.getExpirationDate();
-        this.bank = supportPostUpdateRequest.getBank();
-        this.account = supportPostUpdateRequest.getAccount();
-        this.recipientName = supportPostUpdateRequest.getRecipientName();
-        this.phone = supportPostUpdateRequest.getPhone();
-        this.address = supportPostUpdateRequest.getAddress();
-        this.detailAddress = supportPostUpdateRequest.getDetailAddress();
-        this.zip = supportPostUpdateRequest.getZip();
+    public void updateAll(PostUpdateRequest postUpdateRequest) {
+        this.supportCategory = SupportCategory.valueOf(postUpdateRequest.getSupportCategory());
+        this.title = postUpdateRequest.getTitle();
+        this.reason = postUpdateRequest.getReason();
+        this.item = postUpdateRequest.getItem();
+        this.purchaseUrl = postUpdateRequest.getPurchaseUrl();
+        this.price = postUpdateRequest.getPrice();
+        this.promise = Promise.valueOf(postUpdateRequest.getPromise());
+        this.expirationDate = postUpdateRequest.getExpirationDate();
+        this.bank = postUpdateRequest.getBank();
+        this.account = postUpdateRequest.getAccount();
+        this.recipientName = postUpdateRequest.getRecipientName();
+        this.phone = postUpdateRequest.getPhone();
+        this.address = postUpdateRequest.getAddress();
+        this.detailAddress = postUpdateRequest.getDetailAddress();
+        this.zip = postUpdateRequest.getZip();
     }
 
-    public void updateNotPending(SupportPostUpdateRequest supportPostUpdateRequest) {
-        this.bank = supportPostUpdateRequest.getBank();
-        this.account = supportPostUpdateRequest.getAccount();
-        this.recipientName = supportPostUpdateRequest.getRecipientName();
-        this.phone = supportPostUpdateRequest.getPhone();
-        this.address = supportPostUpdateRequest.getAddress();
-        this.detailAddress = supportPostUpdateRequest.getDetailAddress();
-        this.zip = supportPostUpdateRequest.getZip();
+    public void updateNotPending(PostUpdateRequest postUpdateRequest) {
+        this.bank = postUpdateRequest.getBank();
+        this.account = postUpdateRequest.getAccount();
+        this.recipientName = postUpdateRequest.getRecipientName();
+        this.phone = postUpdateRequest.getPhone();
+        this.address = postUpdateRequest.getAddress();
+        this.detailAddress = postUpdateRequest.getDetailAddress();
+        this.zip = postUpdateRequest.getZip();
     }
 
 

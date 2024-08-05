@@ -30,6 +30,7 @@ public enum SuccessStatus {
     UPDATE_SUPPORT_SUCCESS(HttpStatus.OK, "후원하기 게시글 업데이트 성공"),
     CREATE_DONATE_SUCCESS(HttpStatus.CREATED, "후원하기 성공"),
     GET_SUPPORT_POST_PAGING_SUCCESS(HttpStatus.OK, "후원하기 게시글 페이징 조회 성공"),
+    GET_DEADLINE_APPROACHING_POST_SUCCESS(HttpStatus.OK, "마감 임박 후원하기 게시글 조회 성공"),
     GET_SUPPORT_PROGRESS_SUCCESS(HttpStatus.OK, "후원하기 진행률 조회 성공"),
 
     /**

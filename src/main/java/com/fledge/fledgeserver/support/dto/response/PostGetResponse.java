@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Getter
 @Schema(description = "후원하기 게시글 조회 DTO")
-public class SupportPostGetResponse {
+public class PostGetResponse {
     @Schema(description = "게시글 ID", example = "2")
     private Long supportPostId;
 
@@ -48,7 +48,7 @@ public class SupportPostGetResponse {
     @Schema(description = "후원자 리스트(후원자 + 금액)", example = "[{\"라이언고슬밥\": 10000}, {\"명륜진샤오미\": 20000}]")
     private List<Map<String, Integer>> supporterList;
 
-    public SupportPostGetResponse(Long supportPostId, Long memberId, String nickname, String title, String reason, String item, String purchaseUrl, int price, List<String> images, LocalDate expirationDate, List<Map<String, Integer>> supporterList) {
+    public PostGetResponse(Long supportPostId, Long memberId, String nickname, String title, String reason, String item, String purchaseUrl, int price, List<String> images, LocalDate expirationDate, List<Map<String, Integer>> supporterList) {
         this.supportPostId = supportPostId;
         this.memberId = memberId;
         this.nickname = nickname;

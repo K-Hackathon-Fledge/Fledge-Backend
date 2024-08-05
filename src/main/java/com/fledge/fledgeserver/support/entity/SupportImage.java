@@ -21,6 +21,7 @@ public class SupportImage {
     @ManyToOne
     @JoinColumn(name = "support_post_id", nullable = false)
     private SupportPost supportPost;
+    
 
     @Builder
     public SupportImage(SupportPost supportPost, String imageUrl) {
