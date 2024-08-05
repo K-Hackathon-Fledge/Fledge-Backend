@@ -72,9 +72,7 @@ public class CanaryProfileController {
 
     @Operation(summary = "자립준비청년 배송지 정보 조회", description = "자립준비청년 후원글 작성 시 배송지 정보를 불러올 수 있습니다.")
     @GetMapping("/delivery")
-    public ResponseEntity<ApiResponse<CanaryGetDeliveryInfoResponse>> getCanaryDeliveryInfo(
-    )
-    {
+    public ResponseEntity<ApiResponse<CanaryGetDeliveryInfoResponse>> getCanaryDeliveryInfo() {
         CanaryGetDeliveryInfoResponse canaryGetDeliveryInfoResponse = canaryProfileService.getCanaryDeliveryInfo();
         return ApiResponse.success(SuccessStatus.DELIVERY_INFO_GET_SUCCESS, canaryGetDeliveryInfoResponse);
     }

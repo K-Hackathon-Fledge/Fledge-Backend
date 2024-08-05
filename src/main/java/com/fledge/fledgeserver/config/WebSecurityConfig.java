@@ -56,8 +56,7 @@ public class WebSecurityConfig {
                                         new AntPathRequestMatcher("/actuator/health"),
                                         new AntPathRequestMatcher("/oauth2/authorization/**"),
                                         new AntPathRequestMatcher("/login/oauth2/code/**"),
-                                        new AntPathRequestMatcher("/oauth2/**"),
-                                        new AntPathRequestMatcher("/api/v1/supports/**")
+                                        new AntPathRequestMatcher("/oauth2/**")
                                 ).permitAll()
                 .anyRequest().authenticated()
                 )
