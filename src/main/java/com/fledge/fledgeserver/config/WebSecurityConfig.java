@@ -58,6 +58,7 @@ public class WebSecurityConfig {
                                         new AntPathRequestMatcher("/login/oauth2/code/**"),
                                         new AntPathRequestMatcher("/oauth2/**"),
                                         new AntPathRequestMatcher("/api/v1/public/**")
+
                                 ).permitAll()
                 .anyRequest().authenticated()
                 )
