@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -294,4 +296,17 @@ public class SupportService {
         return new PostTotalPagingResponse((int) totalElements, totalPages, supportPosts);
     }
 
+    @Transactional
+    public void checkAndExpireSupportPosts() {
+        LocalDate currentDate = LocalDate.now(); // 현재 날짜와 시간 가져오기
+        List<SupportPost> supportPosts = supportPostRepository.findAllBySupportPostStatusOr();
+        System.out.println("supportPosts.size() = " + supportPosts.size());
+
+        supportPosts.stream()
+                .filter(supportPost -> supportPost.getExpirationDate().isBefore(currentDate)) // expirationDate가 현재 날짜보다 이전인 경우
+                .forEach(supportPost -> {
+                    supportPost.setExpiration(); // 만료 처리 메서드 호출
+                    supportPostRepository.save(supportPost); // 변경 사항 저장
+                });
+    }
 }

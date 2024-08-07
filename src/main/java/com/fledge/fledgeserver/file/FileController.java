@@ -29,5 +29,4 @@ public class FileController {
             @Parameter(description = "파일 이름", required = true, example = "example.txt") @RequestParam(name = "fileName") String fileName) {
         return ApiResponse.success(SuccessStatus.FILE_RETRIEVAL_SUCCESS,  fileService.getPresignedUrl(prefix, fileName));
     }
-
 }

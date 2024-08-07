@@ -4,6 +4,7 @@ import com.fledge.fledgeserver.exception.CustomException;
 import com.fledge.fledgeserver.exception.ErrorCode;
 import com.fledge.fledgeserver.support.entity.SupportCategory;
 import com.fledge.fledgeserver.support.entity.SupportPost;
+import com.fledge.fledgeserver.support.entity.SupportPostStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,13 +45,14 @@ public interface SupportPostRepository extends JpaRepository<SupportPost, Long> 
                                                                             @Param("q") String q,
                                                                             @Param("status") String status,
                                                                             Pageable pageable);
-
-
-
-
-
-
     @Query("SELECT sp FROM SupportPost sp WHERE FUNCTION('DATEDIFF', sp.expirationDate, CURRENT_DATE) <= 7")
     Page<SupportPost> findByExpirationDateWithinSevenDays(Pageable pageable);
+
+    // IN 절보다 AND
+//    List<SupportPost> findAllBySupportPostStatusIn(List<SupportPostStatus> statuses);
+        // JPQL을 사용하여 PENDING 또는 IN_PROGRESS 상태의 SupportPost를 찾는 메서드
+    @Query("SELECT sp FROM SupportPost sp WHERE sp.supportPostStatus = com.fledge.fledgeserver.support.entity.SupportPostStatus.PENDING " +
+            "OR sp.supportPostStatus = com.fledge.fledgeserver.support.entity.SupportPostStatus.IN_PROGRESS")
+    List<SupportPost> findAllBySupportPostStatusOr();
 
 }
