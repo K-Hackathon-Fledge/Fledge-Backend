@@ -150,10 +150,15 @@ public class SupportPost extends BaseTimeEntity {
         this.zip = postUpdateRequest.getZip();
     }
 
-
-
+    // 첫 후원하기 시에 후원 진행 중 처리 "IN_PROGRESS"
     public void support() {
         this.supportPostStatus = SupportPostStatus.IN_PROGRESS;
     }
+
+    // 현재 시점이 만료 시점을 지남 후원 종료 처리 "TERMINATED"
+    public void setExpiration() { this.supportPostStatus = SupportPostStatus.TERMINATED; }
+
+    // 후원 물품 금액 달성 시 후원 완료 처리 "COMPLETED"
+    public void setCompleted() { this.supportPostStatus = SupportPostStatus.COMPLETED; }
 }
 

@@ -28,7 +28,7 @@ public class SupportController {
 
     @Operation(summary = "후원하기 게시글 등록",
             description = "후원하기 게시글을 등록합니다.(자립 준비 청소년만)\n" +
-                    "\n" + // 추가적인 줄바꿈
+                    "\n" +
                     "### promise\n" +
                     "[ONCE, WEEKLY, MONTHLY]" +
                     "\n" +

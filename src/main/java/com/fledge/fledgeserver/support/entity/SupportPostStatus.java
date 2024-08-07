@@ -10,7 +10,6 @@ public enum SupportPostStatus {
     COMPLETED("COMPLETED"), // 후원 금액 달성으로 종료
     TERMINATED("TERMINATED"); // 후원 기간 말료로 종료
 
-
     private final String key;
     public String getKey() {
         return key;
