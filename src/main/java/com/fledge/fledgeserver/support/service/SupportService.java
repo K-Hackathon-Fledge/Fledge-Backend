@@ -6,23 +6,23 @@ import com.fledge.fledgeserver.file.FileService;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.member.entity.Role;
 import com.fledge.fledgeserver.member.repository.MemberRepository;
+import com.fledge.fledgeserver.support.dto.request.PostCreateRequest;
 import com.fledge.fledgeserver.support.dto.request.PostUpdateRequest;
 import com.fledge.fledgeserver.support.dto.request.RecordCreateRequest;
-import com.fledge.fledgeserver.support.dto.request.PostCreateRequest;
 import com.fledge.fledgeserver.support.dto.response.*;
 import com.fledge.fledgeserver.support.entity.*;
 import com.fledge.fledgeserver.support.repository.SupportImageRepository;
-import com.fledge.fledgeserver.support.repository.SupportRecordRepository;
 import com.fledge.fledgeserver.support.repository.SupportPostRepository;
+import com.fledge.fledgeserver.support.repository.SupportRecordRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,6 +35,11 @@ public class SupportService {
     private final SupportPostRepository supportPostRepository;
     private final SupportRecordRepository supportRecordRepository;
     private final SupportImageRepository supportImageRepository;
+    @Lazy
+    private static final List<SupportPostStatus> unsupportedStatus = Arrays.asList(
+            SupportPostStatus.TERMINATED,
+            SupportPostStatus.COMPLETED
+    );
 
     @Transactional
     public void createSupport(Long memberId, PostCreateRequest postCreateRequest) {
@@ -96,32 +101,49 @@ public class SupportService {
 
     @Transactional
     public void createSupportRecord(Long supportId, RecordCreateRequest recordCreateRequest, Long memberId) {
-        Member member = memberRepository.findMemberByIdOrThrow(memberId); // 후원자
         SupportPost supportPost = supportPostRepository.findSupportByIdOrThrow(supportId); // 게시글
+
+        if (unsupportedStatus.contains(supportPost.getSupportPostStatus())) {
+            // "COMPLETED", "TERMINATED" 상태인 경우 후원 불가
+            throw new CustomException(ErrorCode.NOT_SUPPORTED_STATUS);
+        }
+
+        Member member = memberRepository.findMemberByIdOrThrow(memberId); // 후원자
         int amount = recordCreateRequest.getAmount();
         List<SupportRecord> supportRecords = supportRecordRepository.findAllBySupportPost(supportPost);
         int beforeSupportPrice = supportRecords.stream()
                 .mapToInt(SupportRecord::getAmount)
                 .sum();
 
-        // 검증 로직 (이번 후원 금액으로 후원 물품 가격 초과인 경우 예외 처리)
-        if (amount + beforeSupportPrice > supportPost.getPrice()) {
+        int afterSupport = amount + beforeSupportPrice;
+        int itemPrice = supportPost.getPrice();
+
+        if (afterSupport > itemPrice) {
+            // 검증 로직 (이번 후원 금액으로 후원 물품 가격 초과인 경우 예외 처리)
             throw new CustomException(ErrorCode.OVER_SUPPORT_PRICE);
+        } else if (afterSupport == itemPrice) {
+            SupportRecord supportRecord = SupportRecord.builder()
+                    .member(member)
+                    .supportPost(supportPost)
+                    .bankName(recordCreateRequest.getBankName())
+                    .bankCode(recordCreateRequest.getBankCode())
+                    .account(recordCreateRequest.getAccount())
+                    .amount(amount)
+                    .build();
+            supportRecordRepository.save(supportRecord);
+            supportPost.setCompleted(); // 후원 물품 금액 달성 시 게시글 상태 "COMPLETED"로 처리
+        } else {
+            SupportRecord supportRecord = SupportRecord.builder()
+                    .member(member)
+                    .supportPost(supportPost)
+                    .bankName(recordCreateRequest.getBankName())
+                    .bankCode(recordCreateRequest.getBankCode())
+                    .account(recordCreateRequest.getAccount())
+                    .amount(amount)
+                    .build();
+            supportRecordRepository.save(supportRecord);
+            supportPost.support();
         }
-
-        // 후원 내역 기록
-        SupportRecord supportRecord = SupportRecord.builder()
-                .member(member)
-                .supportPost(supportPost)
-                .bankName(recordCreateRequest.getBankName())
-                .bankCode(recordCreateRequest.getBankCode())
-                .account(recordCreateRequest.getAccount())
-                .amount(amount)
-                .build();
-        supportRecordRepository.save(supportRecord);
-
-        // 후원 게시글 상태 변경
-        supportPost.support();
     }
 
     @Transactional(readOnly = true)
@@ -195,34 +217,23 @@ public class SupportService {
         SupportPost supportPost = supportPostRepository.findSupportByIdWithFetch(supportId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
 
-        // Validate access rights
         if (!supportPost.getMember().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.NO_ACCESS);
         }
-        System.out.println("HI1");
-        // Update logic based on status
         if (SupportPostStatus.PENDING.equals(supportPost.getSupportPostStatus())) {
-            System.out.println("HI2");
             supportPost.updateAll(postUpdateRequestDto);
-            System.out.println("HI3");
             clearAndUpdateImages(supportPost, postUpdateRequestDto);
-            System.out.println("HI4");
         } else {
-            System.out.println("HI5");
             supportPost.updateNotPending(postUpdateRequestDto);
-            System.out.println("HI6");
         }
     }
 
-    // Method to handle clearing and updating images
     private void clearAndUpdateImages(SupportPost supportPost, PostUpdateRequest postUpdateRequestDto) {
-        // Clear existing images
         supportPost.getImages().clear();
 
-        // Create new SupportImage instances and add them to the supportPost
         List<SupportImage> newImages = postUpdateRequestDto.getImages().stream()
                 .map(imageUrl -> new SupportImage(supportPost, imageUrl))
-                .collect(Collectors.toList());
+                .toList();
 
         supportPost.getImages().addAll(newImages);
     }
@@ -232,15 +243,13 @@ public class SupportService {
     public PostTotalPagingResponse pagingSupportPost(int page, String q, List<String> category, String status) {
         PageRequest pageable = PageRequest.of(page, 9);
 
-        // 카테고리가 비어있을 때 null로 설정
         List<SupportCategory> selectedCategories = category.isEmpty() ? null : category.stream()
                 .map(SupportCategory::valueOf)
                 .collect(Collectors.toList());
 
-        // 쿼리 실행
         Page<SupportPost> supportPostPage = supportPostRepository.findByCategoryAndSearchAndSupportPostStatusWithImages(selectedCategories, q, status, pageable);
         long totalElements = supportPostPage.getTotalElements();
-        // 게시물 응답 리스트 생성
+
         List<PostPagingResponse> postPagingResponse = supportPostPage.getContent().stream()
                 .map(supportPost -> {
                     int totalPrice = supportPost.getPrice();
@@ -267,7 +276,7 @@ public class SupportService {
 
     @Transactional(readOnly = true)
     public PostTotalPagingResponse deadlineApproachingPosts(int page) {
-        PageRequest pageable = PageRequest.of(page, 4); // Set page size to 4
+        PageRequest pageable = PageRequest.of(page, 4);
         Page<SupportPost> supportPostPage = supportPostRepository.findByExpirationDateWithinSevenDays(pageable);
 
         long totalElements = supportPostPage.getTotalElements();
@@ -278,7 +287,6 @@ public class SupportService {
 
                     RecordProgressGetResponse supportRecordProgress = new RecordProgressGetResponse(totalPrice, supportedPrice);
 
-                    // Attempt to find the first image, which may return null
                     SupportImage supportImage = supportImageRepository.findFirstImageBySupportPostIdOrDefault(supportPost.getId());
                     String imageUrl = (supportImage != null) ? fileService.getFileUrl(supportImage.getImageUrl()) : null; // Set to null if no image found
 
@@ -292,21 +300,20 @@ public class SupportService {
                 })
                 .collect(Collectors.toList());
         int totalPages = supportPostPage.getTotalPages();
-        // Create and return response object with total pages and post list
+
         return new PostTotalPagingResponse((int) totalElements, totalPages, supportPosts);
     }
 
     @Transactional
     public void checkAndExpireSupportPosts() {
-        LocalDate currentDate = LocalDate.now(); // 현재 날짜와 시간 가져오기
+        LocalDate currentDate = LocalDate.now();
         List<SupportPost> supportPosts = supportPostRepository.findAllBySupportPostStatusOr();
-        System.out.println("supportPosts.size() = " + supportPosts.size());
 
         supportPosts.stream()
-                .filter(supportPost -> supportPost.getExpirationDate().isBefore(currentDate)) // expirationDate가 현재 날짜보다 이전인 경우
+                .filter(supportPost -> supportPost.getExpirationDate().isBefore(currentDate))
                 .forEach(supportPost -> {
-                    supportPost.setExpiration(); // 만료 처리 메서드 호출
-                    supportPostRepository.save(supportPost); // 변경 사항 저장
+                    supportPost.setExpiration();
+                    supportPostRepository.save(supportPost);
                 });
     }
 }

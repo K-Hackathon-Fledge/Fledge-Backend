@@ -41,7 +41,7 @@ public class PostCreateRequest {
     private String purchaseUrl;
 
     @Schema(description = "후원 물품 가격", required = true, example = "500000")
-    @NotBlank(message = "후원 물품 가격은 필수입니다.")
+    @NotNull(message = "후원 물품 가격은 필수입니다.")
     @Positive(message = "가격은 0보다 큰 값이어야 합니다.")
     private int price;
 
