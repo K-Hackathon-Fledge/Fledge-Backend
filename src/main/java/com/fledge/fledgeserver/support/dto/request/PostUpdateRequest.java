@@ -1,10 +1,7 @@
 package com.fledge.fledgeserver.support.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
@@ -42,7 +39,7 @@ public class PostUpdateRequest {
     private String purchaseUrl;
 
     @Schema(description = "후원 물품 가격", required = true, example = "500000")
-    @NotBlank(message = "후원 물품 가격은 필수입니다.")
+    @NotNull(message = "후원 물품 가격은 필수입니다.")
     @Positive(message = "가격은 0보다 큰 값이어야 합니다.")
     private int price;
 
@@ -54,7 +51,7 @@ public class PostUpdateRequest {
     private String promise;
 
     @Schema(description = "후원 만료 시점", required = true, example = "2024-12-31")
-    @NotBlank(message = "만료 시점은 필수입니다.")
+    @NotNull(message = "만료 시점은 필수입니다.")
     @Future(message = "만료 시점은 현재 시간 이후여야 합니다.")
     private LocalDate expirationDate;
 

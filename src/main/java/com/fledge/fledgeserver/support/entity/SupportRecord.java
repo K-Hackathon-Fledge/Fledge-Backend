@@ -50,8 +50,4 @@ public class SupportRecord extends BaseTimeEntity {
         this.account = account;
         this.amount = amount;
     }
-
-    public void softDelete() {
-        this.deletedAt = LocalDateTime.now();
-    }
 }

@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
 public class SupportImage {
 
     @Id
@@ -32,9 +31,5 @@ public class SupportImage {
     public SupportImage(SupportPost supportPost, String imageUrl) {
         this.supportPost = supportPost;
         this.imageUrl = imageUrl;
-    }
-
-    public void softDelete() {
-        this.deletedAt = LocalDateTime.now();
     }
 }

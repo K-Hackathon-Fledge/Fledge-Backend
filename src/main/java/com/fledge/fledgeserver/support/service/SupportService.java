@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -327,8 +328,18 @@ public class SupportService {
         if (notPossibleStatus.contains(supportPost.getSupportPostStatus())) {
             throw new CustomException(ErrorCode.NOT_SUPPORTED_STATUS);
         }
-        supportPost.softDelete();
-        supportPost.getImages().forEach(SupportImage::softDelete);
-        supportPost.getSupportRecords().forEach(SupportRecord::softDelete);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Long> imageIds = supportPost.getImages().stream()
+                .map(SupportImage::getId)
+                .collect(Collectors.toList());
+        List<Long> recordIds = supportPost.getSupportRecords().stream()
+                .map(SupportRecord::getId)
+                .collect(Collectors.toList());
+
+        supportPost.softDelete(now);
+        supportImageRepository.softDeleteByIds(imageIds, now);
+        supportRecordRepository.softDeleteByIds(recordIds, now);
     }
 }

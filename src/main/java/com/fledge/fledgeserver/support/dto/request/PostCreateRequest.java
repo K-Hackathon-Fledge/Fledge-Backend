@@ -49,7 +49,7 @@ public class PostCreateRequest {
     private List<String> images;
 
     @Schema(description = "만료 시점", required = true, example = "2024-12-31")
-    @NotBlank(message = "만료 시점은 필수입니다.")
+    @NotNull(message = "만료 시점은 필수입니다.")
     @Future(message = "만료 시점은 현재 시간 이후여야 합니다.")
     private LocalDate expirationDate;
 

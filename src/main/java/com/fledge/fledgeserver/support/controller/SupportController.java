@@ -65,8 +65,6 @@ public class SupportController {
         return ApiResponse.success(CREATE_DONATE_SUCCESS);
     }
 
-
-
     @Operation(summary = "후원하기 게시글 수정 시 기존 데이터 조회",
             description = "후원하기 게시글의 기존 데이터를 반환합니다.\n" +
                     "\n" +
@@ -100,7 +98,6 @@ public class SupportController {
         return ApiResponse.success(SuccessStatus.UPDATE_SUPPORT_SUCCESS);
     }
 
-    // TODO :: 후원하기 게시글 삭제 API
     @Operation(summary = "후원하기 게시글 삭제", description = "후원하기 게시글을 삭제합니다.")
     @DeleteMapping("/{supportId}")
     public ResponseEntity<ApiResponse<Object>> deleteSupportPost(
