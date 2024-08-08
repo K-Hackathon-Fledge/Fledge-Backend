@@ -37,6 +37,7 @@ public enum ErrorCode {
     OVER_SUPPORT_PRICE(BAD_REQUEST, "후원 물품 금액을 초과하였습니다."),
     POST_IMAGE_NOT_FOUND(NOT_FOUND, "후원 게시글의 이미지를 찾을 수 없습니다."),
     NOT_SUPPORTED_STATUS(BAD_REQUEST, "후원할 수 없는 게시글 상태입니다."),
+    NOT_DELETED_STATUS(BAD_REQUEST, "삭제할 수 없는 게시글 상태입니다."),
 
     // challenge
     CHALLENGE_NOT_FOUND(NOT_FOUND, "챌린지를 찾을 수 없습니다."),

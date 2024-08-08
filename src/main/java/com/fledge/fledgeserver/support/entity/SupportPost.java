@@ -7,8 +7,11 @@ import com.fledge.fledgeserver.support.dto.request.PostCreateRequest;
 import com.fledge.fledgeserver.support.dto.request.PostUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +19,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
+@Where(clause = "deleted_at IS NULL") // deletedAt이 null인 경우에만 조회
 public class SupportPost extends BaseTimeEntity {
 
     @Id
@@ -89,6 +93,9 @@ public class SupportPost extends BaseTimeEntity {
     @Column(nullable = true)
     private String zip;
 
+    @Column(name = "deleted_at") // 삭제 시각 저장
+    private LocalDateTime deletedAt;
+
     // TODO :: 챌린지 구현 후 참여 중이거나 완료한 챌린지(뱃지)에 대한 로직 추가
 
     @Builder
@@ -160,5 +167,9 @@ public class SupportPost extends BaseTimeEntity {
 
     // 후원 물품 금액 달성 시 후원 완료 처리 "COMPLETED"
     public void setCompleted() { this.supportPostStatus = SupportPostStatus.COMPLETED; }
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }
 

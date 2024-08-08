@@ -6,9 +6,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 public class SupportImage {
 
     @Id
@@ -21,11 +24,17 @@ public class SupportImage {
     @ManyToOne
     @JoinColumn(name = "support_post_id", nullable = false)
     private SupportPost supportPost;
-    
+
+    @Column(name = "deleted_at") // 삭제 시각 저장
+    private LocalDateTime deletedAt;
 
     @Builder
     public SupportImage(SupportPost supportPost, String imageUrl) {
         this.supportPost = supportPost;
         this.imageUrl = imageUrl;
+    }
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

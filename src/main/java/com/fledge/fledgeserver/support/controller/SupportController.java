@@ -11,6 +11,7 @@ import com.fledge.fledgeserver.support.service.SupportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -99,4 +100,14 @@ public class SupportController {
     }
 
     // TODO :: 후원하기 게시글 삭제 API
+    @Operation(summary = "후원하기 게시글 삭제", description = "후원하기 게시글을 삭제합니다.")
+    @DeleteMapping("/{supportId}")
+    public ResponseEntity<ApiResponse<Object>> deleteSupportPost(
+            Principal principal,
+            @PathVariable(value = "supportId") Long supportId
+    ) {
+        Long memberId = SecurityUtils.getCurrentUserId(principal);
+        supportService.deleteSupportPost(memberId, supportId);
+        return ApiResponse.success(SuccessStatus.DELETE_SUPPORT_SUCCESS);
+    }
 }
