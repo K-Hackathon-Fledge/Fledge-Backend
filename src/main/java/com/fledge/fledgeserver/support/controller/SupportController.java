@@ -10,6 +10,7 @@ import com.fledge.fledgeserver.support.dto.response.*;
 import com.fledge.fledgeserver.support.service.SupportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public class SupportController {
     @PostMapping
     public ResponseEntity<ApiResponse<Object>> createSupport(
             Principal principal,
-            @RequestBody PostCreateRequest postCreateRequest
+            @Valid @RequestBody PostCreateRequest postCreateRequest
     ) {
         Long memberId = SecurityUtils.getCurrentUserId(principal);
         supportService.createSupport(memberId, postCreateRequest);
@@ -56,7 +57,7 @@ public class SupportController {
     @PostMapping("/{supportId}/record")
     public ResponseEntity<ApiResponse<Object>> createSupportRecord(
             @PathVariable(value = "supportId") Long supportId,
-            @RequestBody RecordCreateRequest donationRequestDto,
+            @Valid @RequestBody RecordCreateRequest donationRequestDto,
             Principal principal
     ) {
         Long memberId = SecurityUtils.getCurrentUserId(principal);
@@ -92,7 +93,7 @@ public class SupportController {
     public ResponseEntity<ApiResponse<PostGetResponse>> updateSupportPost(
             Principal principal,
             @PathVariable(value = "supportId") Long supportId,
-            @RequestBody PostUpdateRequest postUpdateRequest
+            @Valid @RequestBody PostUpdateRequest postUpdateRequest
     ) {
         Long memberId = SecurityUtils.getCurrentUserId(principal);
         supportService.updateSupportPost(memberId, supportId, postUpdateRequest);
