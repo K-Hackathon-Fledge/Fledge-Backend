@@ -10,7 +10,9 @@ import com.fledge.fledgeserver.support.dto.response.*;
 import com.fledge.fledgeserver.support.service.SupportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +43,7 @@ public class SupportController {
     @PostMapping
     public ResponseEntity<ApiResponse<Object>> createSupport(
             Principal principal,
-            @RequestBody PostCreateRequest postCreateRequest
+            @Valid @RequestBody PostCreateRequest postCreateRequest
     ) {
         Long memberId = SecurityUtils.getCurrentUserId(principal);
         supportService.createSupport(memberId, postCreateRequest);
@@ -55,15 +57,13 @@ public class SupportController {
     @PostMapping("/{supportId}/record")
     public ResponseEntity<ApiResponse<Object>> createSupportRecord(
             @PathVariable(value = "supportId") Long supportId,
-            @RequestBody RecordCreateRequest donationRequestDto,
+            @Valid @RequestBody RecordCreateRequest donationRequestDto,
             Principal principal
     ) {
         Long memberId = SecurityUtils.getCurrentUserId(principal);
         supportService.createSupportRecord(supportId, donationRequestDto, memberId);
         return ApiResponse.success(CREATE_DONATE_SUCCESS);
     }
-
-
 
     @Operation(summary = "후원하기 게시글 수정 시 기존 데이터 조회",
             description = "후원하기 게시글의 기존 데이터를 반환합니다.\n" +
@@ -91,12 +91,21 @@ public class SupportController {
     public ResponseEntity<ApiResponse<PostGetResponse>> updateSupportPost(
             Principal principal,
             @PathVariable(value = "supportId") Long supportId,
-            @RequestBody PostUpdateRequest postUpdateRequest
+            @Valid @RequestBody PostUpdateRequest postUpdateRequest
     ) {
         Long memberId = SecurityUtils.getCurrentUserId(principal);
         supportService.updateSupportPost(memberId, supportId, postUpdateRequest);
         return ApiResponse.success(SuccessStatus.UPDATE_SUPPORT_SUCCESS);
     }
 
-    // TODO :: 후원하기 게시글 삭제 API
+    @Operation(summary = "후원하기 게시글 삭제", description = "후원하기 게시글을 삭제합니다.")
+    @DeleteMapping("/{supportId}")
+    public ResponseEntity<ApiResponse<Object>> deleteSupportPost(
+            Principal principal,
+            @PathVariable(value = "supportId") Long supportId
+    ) {
+        Long memberId = SecurityUtils.getCurrentUserId(principal);
+        supportService.deleteSupportPost(memberId, supportId);
+        return ApiResponse.success(SuccessStatus.DELETE_SUPPORT_SUCCESS);
+    }
 }

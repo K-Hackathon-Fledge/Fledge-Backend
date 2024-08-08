@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -35,6 +37,9 @@ public class SupportRecord extends BaseTimeEntity {
 
     @Column(nullable = false)
     private int amount;
+
+    @Column(name = "deleted_at") // 삭제 시각 저장
+    private LocalDateTime deletedAt;
 
     @Builder
     public SupportRecord(Member member, SupportPost supportPost, String account, int amount, String bankName, String bankCode) {

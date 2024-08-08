@@ -1,5 +1,6 @@
 package com.fledge.fledgeserver.support.service;
 
+import com.fledge.fledgeserver.exception.AuthException;
 import com.fledge.fledgeserver.exception.CustomException;
 import com.fledge.fledgeserver.exception.ErrorCode;
 import com.fledge.fledgeserver.file.FileService;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +38,7 @@ public class SupportService {
     private final SupportRecordRepository supportRecordRepository;
     private final SupportImageRepository supportImageRepository;
     @Lazy
-    private static final List<SupportPostStatus> unsupportedStatus = Arrays.asList(
+    private static final List<SupportPostStatus> notPossibleStatus = Arrays.asList(
             SupportPostStatus.TERMINATED,
             SupportPostStatus.COMPLETED
     );
@@ -103,7 +105,7 @@ public class SupportService {
     public void createSupportRecord(Long supportId, RecordCreateRequest recordCreateRequest, Long memberId) {
         SupportPost supportPost = supportPostRepository.findSupportByIdOrThrow(supportId); // 게시글
 
-        if (unsupportedStatus.contains(supportPost.getSupportPostStatus())) {
+        if (notPossibleStatus.contains(supportPost.getSupportPostStatus())) {
             // "COMPLETED", "TERMINATED" 상태인 경우 후원 불가
             throw new CustomException(ErrorCode.NOT_SUPPORTED_STATUS);
         }
@@ -315,5 +317,29 @@ public class SupportService {
                     supportPost.setExpiration();
                     supportPostRepository.save(supportPost);
                 });
+    }
+
+    @Transactional
+    public void deleteSupportPost(Long memberId, Long supportId) {
+        SupportPost supportPost = supportPostRepository.findSupportByIdOrThrow(supportId);
+        if (!supportPost.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
+        if (notPossibleStatus.contains(supportPost.getSupportPostStatus())) {
+            throw new CustomException(ErrorCode.NOT_SUPPORTED_STATUS);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Long> imageIds = supportPost.getImages().stream()
+                .map(SupportImage::getId)
+                .collect(Collectors.toList());
+        List<Long> recordIds = supportPost.getSupportRecords().stream()
+                .map(SupportRecord::getId)
+                .collect(Collectors.toList());
+
+        supportPost.softDelete(now);
+        supportImageRepository.softDeleteByIds(imageIds, now);
+        supportRecordRepository.softDeleteByIds(recordIds, now);
     }
 }
