@@ -1,6 +1,5 @@
 package com.fledge.fledgeserver.support.service;
 
-import com.fledge.fledgeserver.exception.AuthException;
 import com.fledge.fledgeserver.exception.CustomException;
 import com.fledge.fledgeserver.exception.ErrorCode;
 import com.fledge.fledgeserver.file.FileService;
@@ -97,7 +96,7 @@ public class SupportService {
                 supportPost.getPurchaseUrl(),
                 supportPost.getPrice(),
                 supportPost.getImages().stream()
-                        .map(supportImage -> fileService.getFileUrl(supportImage.getImageUrl()))
+                        .map(supportImage -> fileService.getDownloadPresignedUrl(supportImage.getImageUrl()))
                         .toList(),
                 supportPost.getExpirationDate(),
                 supporterList
@@ -188,7 +187,7 @@ public class SupportService {
         String purchaseUrl = supportPost.getPurchaseUrl();
         int price = supportPost.getPrice();
         List<String> images = supportPost.getImages().stream()
-                .map(supportImage -> fileService.getFileUrl(supportImage.getImageUrl()))
+                .map(supportImage -> fileService.getDownloadPresignedUrl(supportImage.getImageUrl()))
                 .toList();
         String promise = String.valueOf(supportPost.getPromise());
         LocalDate expirationDate = supportPost.getExpirationDate();
@@ -262,7 +261,7 @@ public class SupportService {
                             .mapToInt(SupportRecord::getAmount)
                             .sum();
                     RecordProgressGetResponse supportRecordProgress = new RecordProgressGetResponse(totalPrice, supportedPrice);
-                    String imageUrl = supportPost.getImages().isEmpty() ? null : fileService.getFileUrl(supportPost.getImages().get(0).getImageUrl());
+                    String imageUrl = supportPost.getImages().isEmpty() ? null : fileService.getDownloadPresignedUrl(supportPost.getImages().get(0).getImageUrl());
                     return new PostPagingResponse(
                             supportPost.getId(),
                             supportPost.getTitle(),
@@ -294,7 +293,7 @@ public class SupportService {
 
                     SupportImage supportImage = supportImageRepository.findFirstImageBySupportPostIdOrDefault(supportPostId);
                     
-                    String imageUrl = (supportImage != null) ? fileService.getFileUrl(supportImage.getImageUrl()) : null; // Set to null if no image found
+                    String imageUrl = (supportImage != null) ? fileService.getDownloadPresignedUrl(supportImage.getImageUrl()) : null; // Set to null if no image found
 
                     return new PostPagingResponse(
                             supportPostId,

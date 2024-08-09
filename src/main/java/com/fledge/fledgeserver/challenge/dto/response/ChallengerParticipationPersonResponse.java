@@ -1,5 +1,6 @@
 package com.fledge.fledgeserver.challenge.dto.response;
 
+import com.fledge.fledgeserver.common.aop.ApplyPresignedUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ApplyPresignedUrl
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "챌린지 참여자 정보 응답 DTO")
@@ -18,6 +20,7 @@ public class ChallengerParticipationPersonResponse {
     @Schema(description = "참여자 닉네임", example = "user123")
     private String nickname;
 
+    @ApplyPresignedUrl
     @Schema(description = "참여자 프로필 이미지 URL", example = "https://example.com/profile.jpg")
     private String profileImageUrl;
 
