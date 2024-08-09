@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ChallengeParticipationRepository extends JpaRepository<ChallengeParticipation, Long> {
 
@@ -26,4 +27,15 @@ public interface ChallengeParticipationRepository extends JpaRepository<Challeng
             "ORDER BY COUNT(p.id) DESC " +
             "LIMIT 3", nativeQuery = true)
     List<String> findTopCategoriesByMemberId(@Param("memberId") Long memberId);
+
+    Optional<ChallengeParticipation> findByMemberIdAndChallengeId(Long memberId, Long challengeId);
+
+    List<ChallengeParticipation> findByChallengeId(Long challengeId);
+
+    @Query("SELECT COUNT(cp) FROM ChallengeParticipation cp WHERE cp.member.id = :memberId AND cp.isSuccess = true")
+    long countSuccessByMemberId(@Param("memberId") Long memberId);
+
+    long countByMemberId(Long id);
+
+    boolean existsByMemberIdAndChallengeId(Long memberId, Long challengeId);
 }
