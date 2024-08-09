@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Schema(description = "후원하기 게시글 수정 시 기존 데이터 조회 DTO")
@@ -41,8 +42,8 @@ public class PostGetForUpdateResponse {
     @Schema(description = "후원 물품 가격", example = "500000")
     private int price;
 
-    @Schema(description = "후원 물품 이미지 리스트", example = "WEEKLY")
-    private List<String> images;
+    @Schema(description = "후원 물품 이미지 리스트", example = "PresignedUrl과 ImagePathUrl")
+    private List<Map<String, String>> images;
 
     @Schema(description = "후원자와의 약속 타입")
     private String promise;
@@ -73,7 +74,7 @@ public class PostGetForUpdateResponse {
     @Schema(description = "우편번호", example = "06123")
     private String zip;
 
-    public PostGetForUpdateResponse(Long supportPostId, String supportCategory, String supportPostStatus, Long memberId, String nickname, String title, String reason, String item, String purchaseUrl, int price, List<String> images, String promise, LocalDate expirationDate, String bank, String account, String recipientName, String phone, String address, String detailAddress, String zip) {
+    public PostGetForUpdateResponse(Long supportPostId, String supportCategory, String supportPostStatus, Long memberId, String nickname, String title, String reason, String item, String purchaseUrl, int price, List<Map<String, String>> images, String promise, LocalDate expirationDate, String bank, String account, String recipientName, String phone, String address, String detailAddress, String zip) {
         this.supportPostId = supportPostId;
         this.supportCategory = supportCategory;
         this.supportPostStatus = supportPostStatus;

@@ -110,7 +110,10 @@ public class SupportPost extends BaseTimeEntity {
         this.promise = Promise.valueOf(postCreateRequest.getPromise());
         this.supportCategory = SupportCategory.valueOf(postCreateRequest.getSupportCategory());
 
-        if ("MEDICAL".equals(supportCategory.name()) || "LEGAL_AID".equals(supportCategory.name())) {
+        if ("MEDICAL".equals(supportCategory.name())
+                || "LEGAL_AID".equals(supportCategory.name())
+                || "EDUCATION".equals(supportCategory.name())
+        ) {
             this.bank = postCreateRequest.getBank();
             this.account = postCreateRequest.getAccount();
             this.recipientName = null;
