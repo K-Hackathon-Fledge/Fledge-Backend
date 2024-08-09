@@ -1,9 +1,10 @@
 package com.fledge.fledgeserver.challenge.controller;
 
 import com.fledge.fledgeserver.challenge.Enum.ChallengeCategory;
-import com.fledge.fledgeserver.challenge.dto.*;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengeResponse;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengerParticipationPersonResponse;
+import com.fledge.fledgeserver.challenge.dto.response.TopParticipantResponse;
 import com.fledge.fledgeserver.challenge.service.ChallengeParticipationService;
-import com.fledge.fledgeserver.challenge.service.ChallengeProofService;
 import com.fledge.fledgeserver.challenge.service.ChallengeService;
 import com.fledge.fledgeserver.response.ApiResponse;
 import com.fledge.fledgeserver.response.SuccessStatus;
@@ -26,7 +27,7 @@ public class PublicChallengeController {
     private final ChallengeService challengeService;
     private final ChallengeParticipationService participationService;
 
-    @Operation(summary = "일반 챌린지 조회", description = "좋아요 수 또는 등록일로 정렬된 챌린지 리스트를 조회합니다. 일반 챌린지만 포함됩니다.")
+    @Operation(summary = "일반 챌린지 리스트 조회", description = "좋아요 수 또는 등록일로 정렬된 챌린지 리스트를 조회합니다. 일반 챌린지만 포함됩니다.")
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ChallengeResponse>>> getChallenges(
             @Parameter(example = "0")
@@ -40,6 +41,16 @@ public class PublicChallengeController {
         Page<ChallengeResponse> challengeResponses = challengeService.getChallenges(page, size, type, categories);
 
         return ApiResponse.success(SuccessStatus.CHALLENGE_RETRIEVAL_SUCCESS, challengeResponses);
+    }
+
+    @Operation(summary = "일반 챌린지 상세 조회", description = "일반 챌린지 ID를 통해 특정 챌린지의 상세 정보를 조회합니다.")
+    @GetMapping("/{challengeId}")
+    public ResponseEntity<ApiResponse<ChallengeResponse>> getChallengeById(
+            @Parameter(description = "챌린지 ID", example = "1")
+            @PathVariable Long challengeId) {
+
+        ChallengeResponse challengeDetail = challengeService.getChallengeById(challengeId);
+        return ApiResponse.success(SuccessStatus.CHALLENGE_RETRIEVAL_SUCCESS, challengeDetail);
     }
 
     @Operation(summary = "연계챌린지 조회", description = "PARTNERSHIP 및 ORGANIZATION 타입의 챌린지를 조회합니다.")
@@ -62,6 +73,14 @@ public class PublicChallengeController {
         List<TopParticipantResponse> topParticipants = participationService.getTopParticipants(20);
         return ApiResponse.success(SuccessStatus.CHALLENGE_RETRIEVAL_SUCCESS, topParticipants);
     }
+
+    @Operation(summary = "챌린지 참여자 목록 조회", description = "특정 챌린지에 참여 중인 사용자들의 목록을 조회합니다.")
+    @GetMapping("/{challengeId}/participants")
+    public ResponseEntity<ApiResponse<List<ChallengerParticipationPersonResponse>>> getChallengeParticipants(@PathVariable Long challengeId) {
+        List<ChallengerParticipationPersonResponse> participants = participationService.getParticipantsByChallengeId(challengeId);
+        return ApiResponse.success(SuccessStatus.CHALLENGE_PARTICIPANTS_RETRIEVED_SUCCESS, participants);
+    }
+
 
 }
 

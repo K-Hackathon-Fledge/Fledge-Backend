@@ -1,6 +1,7 @@
-package com.fledge.fledgeserver.challenge.dto;
+package com.fledge.fledgeserver.challenge.dto.response;
 
 import com.fledge.fledgeserver.challenge.entity.ChallengeProof;
+import com.fledge.fledgeserver.common.aop.ApplyPresignedUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 
 @AllArgsConstructor
 @Getter
+@ApplyPresignedUrl
 @Schema(description = "챌린지 인증 응답 DTO")
 public class ChallengeProofResponse {
 
@@ -22,6 +24,7 @@ public class ChallengeProofResponse {
     @Schema(description = "인증 날짜", example = "2023-01-02")
     private LocalDate proofDate;
 
+    @ApplyPresignedUrl
     @Schema(description = "인증 이미지 URL", example = "http://example.com/proof.jpg")
     private String proofImageUrl;
 

@@ -1,13 +1,14 @@
 package com.fledge.fledgeserver.challenge.service;
 
 import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengerParticipationPersonResponse;
 import com.fledge.fledgeserver.challenge.repository.ChallengeRepository;
 import com.fledge.fledgeserver.challenge.Enum.Frequency;
-import com.fledge.fledgeserver.challenge.dto.TopParticipantResponse;
+import com.fledge.fledgeserver.challenge.dto.response.TopParticipantResponse;
 import com.fledge.fledgeserver.challenge.entity.ChallengeParticipation;
 import com.fledge.fledgeserver.challenge.repository.ChallengeParticipationRepository;
 import com.fledge.fledgeserver.challenge.repository.ChallengeProofRepository;
-import com.fledge.fledgeserver.challenge.dto.ChallengeParticipationResponse;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengeParticipationResponse;
 import com.fledge.fledgeserver.challenge.entity.Challenge;
 import com.fledge.fledgeserver.challenge.entity.ChallengeProof;
 import com.fledge.fledgeserver.common.utils.SecurityUtils;
@@ -39,6 +40,10 @@ public class ChallengeParticipationService {
 
         if (!canaryProfileRepository.existsByMemberAndApprovalStatusIsTrue(member)){
             throw new CustomException(ErrorCode.CANARY_NOT_FOUND, "인증된 자립준비 청년이 아닙니다.");
+        }
+
+        if (participationRepository.existsByMemberIdAndChallengeId(memberId, challengeId)) {
+            throw new CustomException(ErrorCode.CHALLENGE_PARTICIPATION_ALREADY_EXISTS);
         }
 
         Challenge challenge = challengeRepository.findById(challengeId)
@@ -144,6 +149,25 @@ public class ChallengeParticipationService {
                 participationRepository.save(participation);
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChallengerParticipationPersonResponse> getParticipantsByChallengeId(Long challengeId) {
+        List<ChallengeParticipation> participations = participationRepository.findByChallengeId(challengeId);
+        return participations.stream().map(participation -> {
+            Member member = participation.getMember();
+            long successCount = participationRepository.countSuccessByMemberId(member.getId());
+            long totalParticipation = participationRepository.countByMemberId(member.getId());
+            List<String> topCategories = participationRepository.findTopCategoriesByMemberId(member.getId());
+
+            return new ChallengerParticipationPersonResponse(
+                    member.getNickname(),
+                    member.getProfile(),
+                    successCount,
+                    totalParticipation,
+                    topCategories
+            );
+        }).collect(Collectors.toList());
     }
 }
 

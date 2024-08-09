@@ -1,11 +1,13 @@
 package com.fledge.fledgeserver.member.dto;
 
+import com.fledge.fledgeserver.common.aop.ApplyPresignedUrl;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.member.entity.Role;
 import lombok.Getter;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@ApplyPresignedUrl
 @Getter
 @Schema(description = "회원 응답 DTO")
 public class MemberResponse {
@@ -18,6 +20,7 @@ public class MemberResponse {
     @Schema(description = "회원 이메일", example = "email@example.com")
     private String email;
 
+    @ApplyPresignedUrl
     @Schema(description = "프로필 url", example = "http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640")
     private String profile;
 

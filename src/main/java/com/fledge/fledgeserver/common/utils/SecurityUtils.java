@@ -81,4 +81,8 @@ public class SecurityUtils {
         return getCurrentMember();
     }
 
+    public static boolean isAuthenticated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.isAuthenticated() && !(authentication.getPrincipal() instanceof String);
+    }
 }

@@ -51,7 +51,7 @@ public class CanaryProfileRequest {
     @Size(max = 255, message = "우편번호는 최대 255자까지 입력 가능합니다.")
     private String zip;
 
-    @Schema(description = "보호종료확인서 경로", required = true, example = "/path/to/certificate")
+    @Schema(description = "보호종료확인서 경로", required = true, example = "files/certificate.pdf")
     @NotBlank(message = "보호종료확인서 경로는 필수입니다.")
     private String certificateFilePath;
 
