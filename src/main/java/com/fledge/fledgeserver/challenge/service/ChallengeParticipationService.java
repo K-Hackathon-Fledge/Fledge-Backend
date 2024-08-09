@@ -1,5 +1,6 @@
 package com.fledge.fledgeserver.challenge.service;
 
+import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
 import com.fledge.fledgeserver.challenge.repository.ChallengeRepository;
 import com.fledge.fledgeserver.challenge.Enum.Frequency;
 import com.fledge.fledgeserver.challenge.dto.TopParticipantResponse;
@@ -13,7 +14,6 @@ import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.exception.CustomException;
 import com.fledge.fledgeserver.exception.ErrorCode;
 import com.fledge.fledgeserver.member.entity.Member;
-import com.fledge.fledgeserver.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -29,13 +29,17 @@ public class ChallengeParticipationService {
 
     private final ChallengeParticipationRepository participationRepository;
     private final ChallengeProofRepository proofRepository;
-    private final MemberRepository memberRepository;
+    private final CanaryProfileRepository canaryProfileRepository;
     private final ChallengeRepository challengeRepository;
 
     @Transactional
     public ChallengeParticipationResponse participateInChallenge(Long memberId, Long challengeId, LocalDate startDate) {
 
         Member member = SecurityUtils.checkAndGetCurrentUser(memberId);
+
+        if (!canaryProfileRepository.existsByMemberAndApprovalStatusIsTrue(member)){
+            throw new CustomException(ErrorCode.CANARY_NOT_FOUND, "인증된 자립준비 청년이 아닙니다.");
+        }
 
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));

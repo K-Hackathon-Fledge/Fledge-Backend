@@ -10,6 +10,12 @@ import org.springframework.http.HttpStatus;
 public enum SuccessStatus {
 
     /**
+     * auth
+     */
+    TOKEN_REFRESH_SUCCESS(HttpStatus.OK, "토큰 갱신 성공"),
+    LOGOUT_SUCCESS(HttpStatus.OK, "로그아웃 성공"),
+
+    /**
      * member
      */
     MEMBER_INFO_RETRIEVAL_SUCCESS(HttpStatus.OK, "회원 정보 조회 성공"),

@@ -7,9 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface CanaryProfileRepository extends JpaRepository<CanaryProfile, Long> {
-    boolean existsByMember(Member member);
 
     Optional<CanaryProfile> findByMemberId(Long memberId);
 
-    Optional<CanaryProfile> findCanaryProfileByMemberId(Long memberId);
+    Optional<CanaryProfile> findByMemberIdAndApprovalStatusIsTrue(Long memberId);
+
+    boolean existsByMemberAndApprovalStatusIsTrue(Member member);
+
+    boolean existsByMember(Member member);
+
 }

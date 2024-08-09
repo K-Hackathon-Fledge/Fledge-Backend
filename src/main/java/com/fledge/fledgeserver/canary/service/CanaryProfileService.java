@@ -1,6 +1,5 @@
 package com.fledge.fledgeserver.canary.service;
 
-import com.fledge.fledgeserver.auth.dto.OAuthUserImpl;
 import com.fledge.fledgeserver.canary.dto.*;
 import com.fledge.fledgeserver.canary.entity.CanaryProfile;
 import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
@@ -11,8 +10,6 @@ import com.fledge.fledgeserver.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.fledge.fledgeserver.exception.ErrorCode.MEMBER_FORBIDDEN;
 
 
 @Service
@@ -25,8 +22,7 @@ public class CanaryProfileService {
     public void createCanaryProfile(CanaryProfileRequest request) {
         Member member = SecurityUtils.checkAndGetCurrentUser(request.getUserId());
 
-        boolean exists = canaryProfileRepository.existsByMember(member);
-        if (exists) {
+        if (canaryProfileRepository.existsByMember(member)){
             throw new CustomException(ErrorCode.DUPLICATE_APPLICATION);
         }
 
@@ -74,7 +70,11 @@ public class CanaryProfileService {
 
     @Transactional
     public CanaryProfileResponse updateCanaryProfile(Long userId, CanaryProfileUpdateRequest request) {
-        SecurityUtils.checkAndGetCurrentUser(userId);
+        Member member = SecurityUtils.checkAndGetCurrentUser(userId);
+
+        if (!canaryProfileRepository.existsByMemberAndApprovalStatusIsTrue(member)){
+            throw new CustomException(ErrorCode.CANARY_NOT_FOUND, "인증되지 않은 자립준비청년 입니다.");
+        }
 
         CanaryProfile existingProfile = canaryProfileRepository.findByMemberId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
@@ -90,7 +90,7 @@ public class CanaryProfileService {
     @Transactional(readOnly = true)
     public CanaryGetDeliveryInfoResponse getCanaryDeliveryInfo() {
         Long userId = SecurityUtils.getCurrentUserId();
-        CanaryProfile canary = canaryProfileRepository.findCanaryProfileByMemberId(userId)
+        CanaryProfile canary = canaryProfileRepository.findByMemberIdAndApprovalStatusIsTrue(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
         return new CanaryGetDeliveryInfoResponse(
                 canary.getName(),
@@ -103,7 +103,7 @@ public class CanaryProfileService {
 
     @Transactional(readOnly = true)
     public CanaryProfileGetResponse getCanaryForSupport(Long memberId) {
-        CanaryProfile canaryProfile = canaryProfileRepository.findByMemberId(memberId)
+        CanaryProfile canaryProfile = canaryProfileRepository.findByMemberIdAndApprovalStatusIsTrue(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CANARY_NOT_FOUND));
 
         return new CanaryProfileGetResponse(canaryProfile);

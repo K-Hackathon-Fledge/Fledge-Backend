@@ -1,5 +1,6 @@
 package com.fledge.fledgeserver.auth.handler;
 
+import com.fledge.fledgeserver.auth.dto.TokenResponse;
 import com.fledge.fledgeserver.auth.jwt.TokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,11 +22,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
-        String accessToken = tokenProvider.generateAccessToken(authentication);
-        tokenProvider.generateRefreshToken(authentication, accessToken);
+        TokenResponse tokenResponse = tokenProvider.createToken(authentication);
 
         String redirectUrl = UriComponentsBuilder.fromUriString(oauthRedirectUrl)
-                .queryParam("accessToken", accessToken)
+                .queryParam("accessToken", tokenResponse.getAccessToken())
+                .queryParam("refreshToken", tokenResponse.getRefreshToken())
                 .build().toUriString();
 
         response.sendRedirect(redirectUrl);
