@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.fledge.fledgeserver.support.entity.SupportPostStatus.IN_PROGRESS;
+import static com.fledge.fledgeserver.support.entity.SupportPostStatus.PENDING;
+
 @Service
 @RequiredArgsConstructor
 public class SupportService {
@@ -222,7 +225,7 @@ public class SupportService {
         if (!supportPost.getMember().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.NO_ACCESS);
         }
-        if (SupportPostStatus.PENDING.equals(supportPost.getSupportPostStatus())) {
+        if (PENDING.equals(supportPost.getSupportPostStatus())) {
             supportPost.updateAll(postUpdateRequestDto);
             clearAndUpdateImages(supportPost, postUpdateRequestDto);
         } else {
@@ -277,23 +280,24 @@ public class SupportService {
 
 
     @Transactional(readOnly = true)
-    public PostTotalPagingResponse deadlineApproachingPosts(int page) {
-        PageRequest pageable = PageRequest.of(page, 4);
-        Page<SupportPost> supportPostPage = supportPostRepository.findByExpirationDateWithinSevenDays(pageable);
+    public List<PostPagingResponse> deadlineApproachingPosts() {
+        List<SupportPost> supportPosts = supportPostRepository.findByExpirationDateWithinSevenDays(PENDING, IN_PROGRESS);
 
-        long totalElements = supportPostPage.getTotalElements();
-        List<PostPagingResponse> supportPosts = supportPostPage.getContent().stream()
+        List<PostPagingResponse> supportPostsList = supportPosts.stream()
                 .map(supportPost -> {
                     int totalPrice = supportPost.getPrice();
-                    int supportedPrice = supportRecordRepository.sumSupportedPriceBySupportPostId(supportPost.getId());
+                    Long supportPostId = supportPost.getId();
+                    System.out.println("supportPostId = " + supportPostId);
+                    int supportedPrice = supportRecordRepository.sumSupportedPriceBySupportPostId(supportPostId);
 
                     RecordProgressGetResponse supportRecordProgress = new RecordProgressGetResponse(totalPrice, supportedPrice);
 
-                    SupportImage supportImage = supportImageRepository.findFirstImageBySupportPostIdOrDefault(supportPost.getId());
+                    SupportImage supportImage = supportImageRepository.findFirstImageBySupportPostIdOrDefault(supportPostId);
+                    
                     String imageUrl = (supportImage != null) ? fileService.getFileUrl(supportImage.getImageUrl()) : null; // Set to null if no image found
 
                     return new PostPagingResponse(
-                            supportPost.getId(),
+                            supportPostId,
                             supportPost.getTitle(),
                             supportPost.getExpirationDate(),
                             imageUrl,
@@ -301,9 +305,8 @@ public class SupportService {
                     );
                 })
                 .collect(Collectors.toList());
-        int totalPages = supportPostPage.getTotalPages();
 
-        return new PostTotalPagingResponse((int) totalElements, totalPages, supportPosts);
+        return supportPostsList;
     }
 
     @Transactional

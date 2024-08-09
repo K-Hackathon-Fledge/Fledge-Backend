@@ -14,14 +14,15 @@ import java.util.Optional;
 
 public interface SupportImageRepository extends JpaRepository<SupportImage, Long> {
     @Query("SELECT si FROM SupportImage si WHERE si.supportPost.id = :supportPostId ORDER BY si.id ASC")
-    Optional<SupportImage> findFirstImageBySupportPostId(@Param("supportPostId") Long supportPostId);
+    List<SupportImage> findImagesBySupportPostId(@Param("supportPostId") Long supportPostId);
 
     default SupportImage findFirstImageBySupportPostIdOrDefault(Long supportPostId) {
-        return findFirstImageBySupportPostId(supportPostId).orElse(null);
+        List<SupportImage> images = findImagesBySupportPostId(supportPostId);
+        return images.isEmpty() ? null : images.get(0); // Get the first image or null if empty
     }
 
     // Soft Delete 시 한방 쿼리 용
     @Modifying
-    @Query("UPDATE SupportImage si SET si.deletedAt = :deletedAt WHERE si.id IN :ids")
+    @Query("UPDATE SupportImage si SET si.deletedAt = :deletedAt WHERE si.id IN (:ids)")
     void softDeleteByIds(@Param("ids") List<Long> ids, @Param("deletedAt") LocalDateTime deletedAt);
 }

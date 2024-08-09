@@ -45,8 +45,13 @@ public interface SupportPostRepository extends JpaRepository<SupportPost, Long> 
                                                                             @Param("q") String q,
                                                                             @Param("status") String status,
                                                                             Pageable pageable);
-    @Query("SELECT sp FROM SupportPost sp WHERE FUNCTION('DATEDIFF', sp.expirationDate, CURRENT_DATE) <= 7")
-    Page<SupportPost> findByExpirationDateWithinSevenDays(Pageable pageable);
+    @Query("SELECT sp FROM SupportPost sp " +
+            "WHERE FUNCTION('DATEDIFF', sp.expirationDate, CURRENT_DATE) <= 7 " +
+            "AND (sp.supportPostStatus = :pending OR sp.supportPostStatus = :inProgress) " +
+            "ORDER BY sp.expirationDate ASC")
+    List<SupportPost> findByExpirationDateWithinSevenDays(@Param("pending") SupportPostStatus pending, @Param("inProgress") SupportPostStatus inProgress);
+
+
 
     // IN 절보다 AND
 //    List<SupportPost> findAllBySupportPostStatusIn(List<SupportPostStatus> statuses);
