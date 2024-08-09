@@ -13,13 +13,12 @@ import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.exception.CustomException;
 import com.fledge.fledgeserver.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.fledge.fledgeserver.exception.ErrorCode.CHALLENGE_TYPE_INVALID;
 
@@ -108,5 +107,39 @@ public class ChallengeService {
         ));
     }
 
+    public List<ChallengeResponse> exploreOtherChallenges(Long challengeId) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));
+
+        List<ChallengeCategory> categories = challenge.getCategories();
+
+        List<Challenge> sameCategoryChallenges = challengeRepository.findTop16ByCategoriesInAndIdNot(categories, challengeId);
+
+        // TODO : 정렬방식 변경
+
+        int remainingSize = 16 - sameCategoryChallenges.size();
+        if (remainingSize > 0) {
+            Pageable pageable = PageRequest.of(0, remainingSize);
+            List<Challenge> randomChallenges = challengeRepository.findRandomChallengesExcludingId(challengeId, pageable);
+
+            Collections.shuffle(randomChallenges);
+
+            sameCategoryChallenges.addAll(randomChallenges);
+        }
+
+        return sameCategoryChallenges.stream()
+                .map(challengeItem -> new ChallengeResponse(
+                        challengeItem.getTitle(),
+                        challengeItem.getLikeCount(),
+                        challengeItem.getCategories(),
+                        challengeItem.getType().name(),
+                        challengeItem.getDescription(),
+                        (double) challengeItem.getSuccessCount() / challengeItem.getParticipantCount(),
+                        challengeItem.getSuccessCount(),
+                        challengeItem.getParticipantCount(),
+                        null, null, null
+                ))
+                .collect(Collectors.toList());
+    }
 
 }

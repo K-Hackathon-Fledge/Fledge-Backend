@@ -82,6 +82,17 @@ public class PublicChallengeController {
     }
 
 
+    @Operation(summary = "다른 챌린지 둘러보기", description = "특정 챌린지와 같은 카테고리에 속한 챌린지들을 우선적으로 보여주고, 그 외에 다른 챌린지들을 랜덤하게 가져옴 (최대 16개)")
+    @GetMapping("/{challengeId}/explore")
+    public ResponseEntity<ApiResponse<List<ChallengeResponse>>> exploreOtherChallenges(
+            @Parameter(description = "챌린지 ID", example = "1")
+            @PathVariable Long challengeId) {
+
+        List<ChallengeResponse> challengeResponses = challengeService.exploreOtherChallenges(challengeId);
+
+        return ApiResponse.success(SuccessStatus.CHALLENGE_EXPLORE_SUCCESS, challengeResponses);
+    }
+
 }
 
 
