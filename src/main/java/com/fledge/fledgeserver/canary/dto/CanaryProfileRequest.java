@@ -1,10 +1,7 @@
 package com.fledge.fledgeserver.canary.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +24,7 @@ public class CanaryProfileRequest {
     @Schema(description = "전화번호", required = true, example = "010-1234-5678")
     @NotBlank(message = "전화번호는 필수입니다.")
     @Size(max = 255, message = "전화번호는 최대 255자까지 입력 가능합니다.")
+    @Pattern(regexp = "^01(?:0|1|[6-9])[.-]?(\\d{3}|\\d{4})[.-]?(\\d{4})$", message = "10 ~ 11 자리의 숫자만 입력 가능합니다.")
     private String phone;
 
     @Schema(description = "생년월일", required = true, example = "1990-01-01")

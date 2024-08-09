@@ -71,6 +71,7 @@ public class PostCreateRequest {
     private String recipientName;
 
     @Schema(description = "전화번호", example = "010-1234-5678")
+    @Pattern(regexp = "^01(?:0|1|[6-9])[.-]?(\\d{3}|\\d{4})[.-]?(\\d{4})$", message = "10 ~ 11 자리의 숫자만 입력 가능합니다.")
     private String phone;
 
     @Schema(description = "주소", example = "서울특별시 노원구 공릉로232")
