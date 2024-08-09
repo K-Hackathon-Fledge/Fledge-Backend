@@ -3,7 +3,6 @@ package com.fledge.fledgeserver.challenge.controller;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeCategory;
 import com.fledge.fledgeserver.challenge.dto.response.ChallengeResponse;
 import com.fledge.fledgeserver.challenge.dto.response.ChallengerParticipationPersonResponse;
-import com.fledge.fledgeserver.challenge.dto.response.TopParticipantResponse;
 import com.fledge.fledgeserver.challenge.service.ChallengeParticipationService;
 import com.fledge.fledgeserver.challenge.service.ChallengeService;
 import com.fledge.fledgeserver.response.ApiResponse;
@@ -43,7 +42,7 @@ public class PublicChallengeController {
         return ApiResponse.success(SuccessStatus.CHALLENGE_RETRIEVAL_SUCCESS, challengeResponses);
     }
 
-    @Operation(summary = "일반 챌린지 상세 조회", description = "일반 챌린지 ID를 통해 특정 챌린지의 상세 정보를 조회합니다.")
+    @Operation(summary = "챌린지 상세 조회", description = "일반 챌린지 ID를 통해 특정 챌린지의 상세 정보를 조회합니다.")
     @GetMapping("/{challengeId}")
     public ResponseEntity<ApiResponse<ChallengeResponse>> getChallengeById(
             @Parameter(description = "챌린지 ID", example = "1")
@@ -69,8 +68,8 @@ public class PublicChallengeController {
 
     @Operation(summary = "가장 성공률이 높은 참여자 목록 조회", description = "가장 성공률이 높은 참여자 상위 20명을 조회합니다.")
     @GetMapping("/top-participants")
-    public ResponseEntity<ApiResponse<List<TopParticipantResponse>>> getTopParticipants() {
-        List<TopParticipantResponse> topParticipants = participationService.getTopParticipants(20);
+    public ResponseEntity<ApiResponse<List<ChallengerParticipationPersonResponse>>> getTopParticipants() {
+        List<ChallengerParticipationPersonResponse> topParticipants = participationService.getTopParticipants(20);
         return ApiResponse.success(SuccessStatus.CHALLENGE_RETRIEVAL_SUCCESS, topParticipants);
     }
 
@@ -81,6 +80,17 @@ public class PublicChallengeController {
         return ApiResponse.success(SuccessStatus.CHALLENGE_PARTICIPANTS_RETRIEVED_SUCCESS, participants);
     }
 
+
+    @Operation(summary = "다른 챌린지 둘러보기", description = "특정 챌린지와 같은 카테고리에 속한 챌린지들을 우선적으로 보여주고, 그 외에 다른 챌린지들을 랜덤하게 가져옴 (최대 16개)")
+    @GetMapping("/{challengeId}/explore")
+    public ResponseEntity<ApiResponse<List<ChallengeResponse>>> exploreOtherChallenges(
+            @Parameter(description = "챌린지 ID", example = "1")
+            @PathVariable Long challengeId) {
+
+        List<ChallengeResponse> challengeResponses = challengeService.exploreOtherChallenges(challengeId);
+
+        return ApiResponse.success(SuccessStatus.CHALLENGE_EXPLORE_SUCCESS, challengeResponses);
+    }
 
 }
 

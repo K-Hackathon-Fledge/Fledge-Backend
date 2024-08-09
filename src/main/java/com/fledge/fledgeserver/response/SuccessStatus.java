@@ -57,7 +57,9 @@ public enum SuccessStatus {
     CHALLENGE_UPDATE_SUCCESS(HttpStatus.NO_CONTENT, "챌린지 업데이트 성공"),
     CHALLENGE_PARTICIPANTS_RETRIEVED_SUCCESS(HttpStatus.OK, "챌린지 참여자 목록 조회에 성공했습니다."),
     CHALLENGE_PROOFS_RETRIEVED_SUCCESS(HttpStatus.OK, "챌린지 인증 내역 조회에 성공했습니다."),
-    CHALLENGE_DETAILS_RETRIEVED_SUCCESS(HttpStatus.OK, "챌린지 상세 조회에 성공했습니다.");
+    CHALLENGE_DETAILS_RETRIEVED_SUCCESS(HttpStatus.OK, "챌린지 상세 조회에 성공했습니다."),
+    CHALLENGE_EXPLORE_SUCCESS(HttpStatus.OK, "챌린지 탐색에 성공했습니다.");
+    ;
 
 
     private final HttpStatus httpStatus;
