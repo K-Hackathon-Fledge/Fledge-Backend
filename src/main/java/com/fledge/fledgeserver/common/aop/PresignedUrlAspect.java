@@ -55,25 +55,28 @@ public class PresignedUrlAspect {
     private void processFields(Object obj) throws IllegalAccessException {
         Field[] fields = obj.getClass().getDeclaredFields();
         for (Field field : fields) {
-            field.setAccessible(true);
-            Object value = field.get(obj);
-
-            if (value == null) continue;
-
-            // String 클래스의 필드를 무시하도록 수정
+            // 필드가 String 타입이고 @ApplyPresignedUrl 어노테이션이 적용된 경우에만 접근 설정
             if (field.getType().equals(String.class) && field.isAnnotationPresent(ApplyPresignedUrl.class)) {
-                // @ApplyPresignedUrl이 붙은 String 필드 -> presigned URL로 변환
-                String presignedUrl = fileService.getDownloadPresignedUrl((String) value);
-                field.set(obj, presignedUrl);
-            } else if (value instanceof Collection<?>) {
-                // List나 Set 같은 컬렉션 타입 필드가 @ApplyPresignedUrl로 지정된 경우
-                for (Object item : (Collection<?>) value) {
-                    processObject(item);
+                field.setAccessible(true);
+                Object value = field.get(obj);
+
+                if (value != null) {
+                    String presignedUrl = fileService.getDownloadPresignedUrl((String) value);
+                    field.set(obj, presignedUrl);
                 }
-            } else if (!field.getType().isPrimitive() && !field.getType().getPackageName().startsWith("java.")) {
-                // Java 표준 라이브러리 클래스의 필드 -> 재귀적으로 처리하지 않음
-                processFields(value);
+            } else if (field.getType().equals(Collection.class) && field.isAnnotationPresent(ApplyPresignedUrl.class)) {
+                // List나 Set 같은 컬렉션 타입 필드가 @ApplyPresignedUrl로 지정된 경우
+                Collection<?> collection = (Collection<?>) field.get(obj);
+                if (collection != null) {
+                    for (Object item : collection) {
+                        processObject(item);
+                    }
+                }
             }
+//            else if (!field.getType().isPrimitive() && !field.getType().getPackageName().startsWith("java.")) {
+//                // Java 표준 라이브러리 클래스의 필드 -> 재귀적으로 처리하지 않음
+//                processFields(value);
+//            }
         }
     }
 
