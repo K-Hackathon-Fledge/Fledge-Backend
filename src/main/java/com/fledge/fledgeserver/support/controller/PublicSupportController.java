@@ -2,6 +2,7 @@ package com.fledge.fledgeserver.support.controller;
 
 import com.fledge.fledgeserver.response.ApiResponse;
 import com.fledge.fledgeserver.support.dto.response.PostGetResponse;
+import com.fledge.fledgeserver.support.dto.response.PostPagingResponse;
 import com.fledge.fledgeserver.support.dto.response.PostTotalPagingResponse;
 import com.fledge.fledgeserver.support.dto.response.RecordProgressGetResponse;
 import com.fledge.fledgeserver.support.service.SupportService;
@@ -62,17 +63,13 @@ public class PublicSupportController {
             @RequestParam(defaultValue = "") List<String> category, // 카테고리
             @RequestParam(defaultValue = "ing") String status
     ) {
-        // 응답에 이미지 포함 시키기
         return ApiResponse.success(GET_SUPPORT_POST_PAGING_SUCCESS, supportService.pagingSupportPost(page-1, q, category, status));
     }
 
     @Operation(summary = "마감 임박한 후원하기 게시글",
-            description = "4개씩 D-7까지 (limit=4, leftDays=7)")
-    @GetMapping("/deadline")
-    public ResponseEntity<ApiResponse<PostTotalPagingResponse>> deadlineApproachingPosts(
-            @RequestParam(defaultValue = "1") int page
-//            @RequestParam(defaultValue = "10") int limit // 무조건 4개
-    ) {
-        return ApiResponse.success(GET_DEADLINE_APPROACHING_POST_SUCCESS, supportService.deadlineApproachingPosts(page-1));
+            description = "4개씩 D-Day부터 D-7까지 한번에 리스트로 반환합니다.")
+    @GetMapping("/deadline-approaching")
+    public ResponseEntity<ApiResponse<List<PostPagingResponse>>> deadlineApproachingPosts() {
+        return ApiResponse.success(GET_DEADLINE_APPROACHING_POST_SUCCESS, supportService.deadlineApproachingPosts());
     }
 }

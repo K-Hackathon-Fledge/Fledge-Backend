@@ -38,7 +38,7 @@ public class SupportRecord extends BaseTimeEntity {
     @Column(nullable = false)
     private int amount;
 
-    @Column(name = "deleted_at") // 삭제 시각 저장
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @Builder
