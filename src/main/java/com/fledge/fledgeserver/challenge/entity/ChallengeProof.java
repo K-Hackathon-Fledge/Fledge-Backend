@@ -26,13 +26,16 @@ public class ChallengeProof {
     @Lob
     private String proofImageUrl;
 
+    private String proofDescription;
+
     private boolean proofed;
 
     @Builder
-    public ChallengeProof(ChallengeParticipation participation, LocalDate proofDate, String proofImageUrl, boolean proofed) {
+    public ChallengeProof(ChallengeParticipation participation, LocalDate proofDate, String proofImageUrl, String proofDescription, boolean proofed) {
         this.participation = participation;
         this.proofDate = proofDate;
         this.proofImageUrl = proofImageUrl;
+        this.proofDescription = proofDescription;
         this.proofed = proofed;
     }
 

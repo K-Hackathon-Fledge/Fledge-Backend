@@ -1,5 +1,7 @@
 package com.fledge.fledgeserver.challenge.service;
 
+import com.fledge.fledgeserver.challenge.dto.ChallengeDetailResponse;
+import com.fledge.fledgeserver.challenge.repository.ChallengeParticipationRepository;
 import com.fledge.fledgeserver.challenge.repository.ChallengeRepository;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeCategory;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeType;
@@ -7,7 +9,10 @@ import com.fledge.fledgeserver.challenge.dto.ChallengeResponse;
 import com.fledge.fledgeserver.challenge.entity.Challenge;
 import com.fledge.fledgeserver.challenge.entity.OrganizationChallenge;
 import com.fledge.fledgeserver.challenge.entity.PartnershipChallenge;
+import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.exception.CustomException;
+import com.fledge.fledgeserver.exception.ErrorCode;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,13 +24,11 @@ import java.util.List;
 import static com.fledge.fledgeserver.exception.ErrorCode.CHALLENGE_TYPE_INVALID;
 
 @Service
+@RequiredArgsConstructor
 public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
-
-    public ChallengeService(ChallengeRepository challengeRepository) {
-        this.challengeRepository = challengeRepository;
-    }
+    private final ChallengeParticipationRepository challengeParticipationRepository;
 
     public Page<ChallengeResponse> getChallenges(int page, int size, String type, List<ChallengeCategory> categories) {
         Sort.Direction direction = Sort.Direction.DESC;
@@ -55,8 +58,29 @@ public class ChallengeService {
                 challenge.getType().name(),
                 challenge.getDescription(),
                 (double) challenge.getSuccessCount() / challenge.getParticipantCount(),
+                challenge.getSuccessCount(),
                 challenge.getParticipantCount()
         ));
+    }
+
+
+    public ChallengeDetailResponse getChallengeById(Long challengeId) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));
+
+        boolean isParticipating = SecurityUtils.isAuthenticated() && challengeParticipationRepository.existsByMemberIdAndChallengeId(SecurityUtils.getCurrentUserId(), challengeId);
+
+        return new ChallengeDetailResponse(
+                challenge.getTitle(),
+                challenge.getLikeCount(),
+                challenge.getCategories(),
+                challenge.getType().name(),
+                challenge.getDescription(),
+                (double) challenge.getSuccessCount() / challenge.getParticipantCount(),
+                challenge.getSuccessCount(),
+                challenge.getParticipantCount(),
+                isParticipating
+        );
     }
 
     public Page<ChallengeResponse> getPartnershipAndOrganizationChallenges(int page, int size, List<ChallengeCategory> categories) {
@@ -76,10 +100,13 @@ public class ChallengeService {
                 challenge.getType().name(),
                 challenge.getDescription(),
                 (double) challenge.getSuccessCount() / challenge.getParticipantCount(),
+                challenge.getSuccessCount(),
                 challenge.getParticipantCount(),
                 challenge instanceof PartnershipChallenge ? ((PartnershipChallenge) challenge).getSupportContent() : ((OrganizationChallenge) challenge).getSupportContent(),
                 challenge instanceof PartnershipChallenge ? ((PartnershipChallenge) challenge).getStartDate() : ((OrganizationChallenge) challenge).getStartDate(),
                 challenge instanceof PartnershipChallenge ? ((PartnershipChallenge) challenge).getEndDate() : ((OrganizationChallenge) challenge).getEndDate()
         ));
     }
+
+
 }

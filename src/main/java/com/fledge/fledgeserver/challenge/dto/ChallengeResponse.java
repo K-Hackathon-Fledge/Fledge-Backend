@@ -33,6 +33,9 @@ public class ChallengeResponse {
     @Schema(description = "성공률(백분율)", example = "85.5")
     private final double successRate;
 
+    @Schema(description = "성공한 참여자 수", example = "50")
+    private final int successCount;
+
     @Schema(description = "참여자 수", example = "50")
     private final int participantCount;
 
