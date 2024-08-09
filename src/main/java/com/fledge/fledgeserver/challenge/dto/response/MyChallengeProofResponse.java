@@ -1,4 +1,4 @@
-package com.fledge.fledgeserver.challenge.dto;
+package com.fledge.fledgeserver.challenge.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -19,5 +19,5 @@ public class MyChallengeProofResponse {
     private int totalProofs;
 
     @Schema(description = "현재 인증 내역 리스트")
-    private List<ProofDetail> proofDetails;
+    private List<ProofDetailResponse> proofDetailResponses;
 }

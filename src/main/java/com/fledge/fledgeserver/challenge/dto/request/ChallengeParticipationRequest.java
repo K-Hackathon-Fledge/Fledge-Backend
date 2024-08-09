@@ -1,4 +1,4 @@
-package com.fledge.fledgeserver.challenge.dto;
+package com.fledge.fledgeserver.challenge.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;

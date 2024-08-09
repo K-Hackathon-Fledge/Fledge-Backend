@@ -1,14 +1,14 @@
 package com.fledge.fledgeserver.challenge.service;
 
 import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
-import com.fledge.fledgeserver.challenge.dto.ChallengerParticipationPersonResponse;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengerParticipationPersonResponse;
 import com.fledge.fledgeserver.challenge.repository.ChallengeRepository;
 import com.fledge.fledgeserver.challenge.Enum.Frequency;
-import com.fledge.fledgeserver.challenge.dto.TopParticipantResponse;
+import com.fledge.fledgeserver.challenge.dto.response.TopParticipantResponse;
 import com.fledge.fledgeserver.challenge.entity.ChallengeParticipation;
 import com.fledge.fledgeserver.challenge.repository.ChallengeParticipationRepository;
 import com.fledge.fledgeserver.challenge.repository.ChallengeProofRepository;
-import com.fledge.fledgeserver.challenge.dto.ChallengeParticipationResponse;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengeParticipationResponse;
 import com.fledge.fledgeserver.challenge.entity.Challenge;
 import com.fledge.fledgeserver.challenge.entity.ChallengeProof;
 import com.fledge.fledgeserver.common.utils.SecurityUtils;

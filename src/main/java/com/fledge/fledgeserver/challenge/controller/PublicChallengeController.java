@@ -1,7 +1,9 @@
 package com.fledge.fledgeserver.challenge.controller;
 
 import com.fledge.fledgeserver.challenge.Enum.ChallengeCategory;
-import com.fledge.fledgeserver.challenge.dto.*;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengeResponse;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengerParticipationPersonResponse;
+import com.fledge.fledgeserver.challenge.dto.response.TopParticipantResponse;
 import com.fledge.fledgeserver.challenge.service.ChallengeParticipationService;
 import com.fledge.fledgeserver.challenge.service.ChallengeService;
 import com.fledge.fledgeserver.response.ApiResponse;

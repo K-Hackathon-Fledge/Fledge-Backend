@@ -1,11 +1,11 @@
 package com.fledge.fledgeserver.challenge.service;
 
-import com.fledge.fledgeserver.challenge.dto.ChallengeDetailResponse;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengeDetailResponse;
 import com.fledge.fledgeserver.challenge.repository.ChallengeParticipationRepository;
 import com.fledge.fledgeserver.challenge.repository.ChallengeRepository;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeCategory;
 import com.fledge.fledgeserver.challenge.Enum.ChallengeType;
-import com.fledge.fledgeserver.challenge.dto.ChallengeResponse;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengeResponse;
 import com.fledge.fledgeserver.challenge.entity.Challenge;
 import com.fledge.fledgeserver.challenge.entity.OrganizationChallenge;
 import com.fledge.fledgeserver.challenge.entity.PartnershipChallenge;

@@ -1,6 +1,10 @@
 package com.fledge.fledgeserver.challenge.controller;
 
-import com.fledge.fledgeserver.challenge.dto.*;
+import com.fledge.fledgeserver.challenge.dto.request.ChallengeParticipationRequest;
+import com.fledge.fledgeserver.challenge.dto.request.ChallengeProofRequest;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengeParticipationResponse;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengeProofResponse;
+import com.fledge.fledgeserver.challenge.dto.response.MyChallengeProofResponse;
 import com.fledge.fledgeserver.challenge.service.ChallengeParticipationService;
 import com.fledge.fledgeserver.challenge.service.ChallengeProofService;
 import com.fledge.fledgeserver.response.ApiResponse;

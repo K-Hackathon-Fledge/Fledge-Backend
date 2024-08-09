@@ -1,4 +1,4 @@
-package com.fledge.fledgeserver.challenge.dto;
+package com.fledge.fledgeserver.challenge.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "인증 내역 상세 정보 DTO")
-public class ProofDetail {
+public class ProofDetailResponse {
 
     @Schema(description = "인증 상태", example = "true")
     private boolean status;

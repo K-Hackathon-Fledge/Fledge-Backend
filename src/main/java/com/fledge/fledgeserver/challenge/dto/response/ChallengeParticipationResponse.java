@@ -1,4 +1,4 @@
-package com.fledge.fledgeserver.challenge.dto;
+package com.fledge.fledgeserver.challenge.dto.response;
 
 import com.fledge.fledgeserver.challenge.entity.ChallengeParticipation;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -1,12 +1,12 @@
 package com.fledge.fledgeserver.challenge.service;
 
 import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
-import com.fledge.fledgeserver.challenge.dto.MyChallengeProofResponse;
-import com.fledge.fledgeserver.challenge.dto.ProofDetail;
+import com.fledge.fledgeserver.challenge.dto.response.MyChallengeProofResponse;
+import com.fledge.fledgeserver.challenge.dto.response.ProofDetailResponse;
 import com.fledge.fledgeserver.challenge.entity.ChallengeParticipation;
 import com.fledge.fledgeserver.challenge.repository.ChallengeParticipationRepository;
 import com.fledge.fledgeserver.challenge.repository.ChallengeProofRepository;
-import com.fledge.fledgeserver.challenge.dto.ChallengeProofResponse;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengeProofResponse;
 import com.fledge.fledgeserver.challenge.entity.ChallengeProof;
 import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.exception.CustomException;
@@ -58,16 +58,16 @@ public class ChallengeProofService {
         ChallengeParticipation participation = participationRepository.findByMemberIdAndChallengeId(member.getId(), challengeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_PARTICIPATION_NOT_FOUND));
 
-        List<ProofDetail> proofDetails = proofRepository.findByParticipationId(participation.getId()).stream()
-                .map(proof -> new ProofDetail(
+        List<ProofDetailResponse> proofDetailResponses = proofRepository.findByParticipationId(participation.getId()).stream()
+                .map(proof -> new ProofDetailResponse(
                         proof.isProofed(),
                         proof.getProofImageUrl(),
                         proof.getProofDescription()
                 )).collect(Collectors.toList());
 
-        int totalProofs = proofDetails.size();
+        int totalProofs = proofDetailResponses.size();
 
-        return new MyChallengeProofResponse(totalProofs, proofDetails);
+        return new MyChallengeProofResponse(totalProofs, proofDetailResponses);
     }
 }
 
