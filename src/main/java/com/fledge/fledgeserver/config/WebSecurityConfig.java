@@ -1,10 +1,11 @@
 package com.fledge.fledgeserver.config;
 
+import com.fledge.fledgeserver.auth.jwt.filter.JwtFilter;
+import com.fledge.fledgeserver.auth.jwt.filter.RefreshFilter;
 import com.fledge.fledgeserver.auth.handler.CustomAccessDeniedHandler;
 import com.fledge.fledgeserver.auth.handler.CustomAuthenticationEntryPoint;
 import com.fledge.fledgeserver.auth.handler.OAuth2FailureHandler;
 import com.fledge.fledgeserver.auth.handler.OAuth2SuccessHandler;
-import com.fledge.fledgeserver.auth.filter.TokenAuthenticationFilter;
 import com.fledge.fledgeserver.auth.service.CustomOAuth2UserService;
 import com.fledge.fledgeserver.exception.GlobalExceptionHandlerFilter;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,8 @@ public class WebSecurityConfig {
     private final CustomOAuth2UserService oAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
-    private final TokenAuthenticationFilter tokenAuthenticationFilter;
+    private final JwtFilter jwtFilter;
+    private final RefreshFilter refreshFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -69,9 +71,10 @@ public class WebSecurityConfig {
                         .failureHandler(oAuth2FailureHandler)
         )
 
-                .addFilterBefore(tokenAuthenticationFilter,
+                .addFilterBefore(jwtFilter,
                         UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new GlobalExceptionHandlerFilter(), tokenAuthenticationFilter.getClass())
+                .addFilterBefore(refreshFilter, JwtFilter.class)
+                .addFilterBefore(new GlobalExceptionHandlerFilter(), refreshFilter.getClass())
 
                 .exceptionHandling((exceptions) -> exceptions
                         .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
