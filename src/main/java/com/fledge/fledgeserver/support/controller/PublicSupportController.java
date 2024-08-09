@@ -63,7 +63,6 @@ public class PublicSupportController {
             @RequestParam(defaultValue = "") List<String> category, // 카테고리
             @RequestParam(defaultValue = "ing") String status
     ) {
-        // 응답에 이미지 포함 시키기
         return ApiResponse.success(GET_SUPPORT_POST_PAGING_SUCCESS, supportService.pagingSupportPost(page-1, q, category, status));
     }
 

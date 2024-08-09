@@ -18,10 +18,9 @@ public interface SupportImageRepository extends JpaRepository<SupportImage, Long
 
     default SupportImage findFirstImageBySupportPostIdOrDefault(Long supportPostId) {
         List<SupportImage> images = findImagesBySupportPostId(supportPostId);
-        return images.isEmpty() ? null : images.get(0); // Get the first image or null if empty
+        return images.isEmpty() ? null : images.get(0);
     }
 
-    // Soft Delete 시 한방 쿼리 용
     @Modifying
     @Query("UPDATE SupportImage si SET si.deletedAt = :deletedAt WHERE si.id IN (:ids)")
     void softDeleteByIds(@Param("ids") List<Long> ids, @Param("deletedAt") LocalDateTime deletedAt);

@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SupportPostRepository extends JpaRepository<SupportPost, Long> {
-    /**
-     *  한방 쿼리: Fetch Join
-     */
     @Query("SELECT s FROM SupportPost s " +
             "JOIN FETCH s.member m " +
             "LEFT JOIN FETCH s.images i " +
@@ -51,11 +48,6 @@ public interface SupportPostRepository extends JpaRepository<SupportPost, Long> 
             "ORDER BY sp.expirationDate ASC")
     List<SupportPost> findByExpirationDateWithinSevenDays(@Param("pending") SupportPostStatus pending, @Param("inProgress") SupportPostStatus inProgress);
 
-
-
-    // IN 절보다 AND
-//    List<SupportPost> findAllBySupportPostStatusIn(List<SupportPostStatus> statuses);
-        // JPQL을 사용하여 PENDING 또는 IN_PROGRESS 상태의 SupportPost를 찾는 메서드
     @Query("SELECT sp FROM SupportPost sp WHERE sp.supportPostStatus = com.fledge.fledgeserver.support.entity.SupportPostStatus.PENDING " +
             "OR sp.supportPostStatus = com.fledge.fledgeserver.support.entity.SupportPostStatus.IN_PROGRESS")
     List<SupportPost> findAllBySupportPostStatusOr();
