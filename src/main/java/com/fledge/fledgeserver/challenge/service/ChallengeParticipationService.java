@@ -4,7 +4,6 @@ import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
 import com.fledge.fledgeserver.challenge.dto.response.ChallengerParticipationPersonResponse;
 import com.fledge.fledgeserver.challenge.repository.ChallengeRepository;
 import com.fledge.fledgeserver.challenge.Enum.Frequency;
-import com.fledge.fledgeserver.challenge.dto.response.TopParticipantResponse;
 import com.fledge.fledgeserver.challenge.entity.ChallengeParticipation;
 import com.fledge.fledgeserver.challenge.repository.ChallengeParticipationRepository;
 import com.fledge.fledgeserver.challenge.repository.ChallengeProofRepository;
@@ -20,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +32,7 @@ public class ChallengeParticipationService {
     private final ChallengeProofRepository proofRepository;
     private final CanaryProfileRepository canaryProfileRepository;
     private final ChallengeRepository challengeRepository;
+    private final DecimalFormat df = new DecimalFormat("#.0");
 
     @Transactional
     public ChallengeParticipationResponse participateInChallenge(Long memberId, Long challengeId, LocalDate startDate) {
@@ -100,21 +101,25 @@ public class ChallengeParticipationService {
     }
 
     @Transactional(readOnly = true)
-    public List<TopParticipantResponse> getTopParticipants(int limit) {
+    public List<ChallengerParticipationPersonResponse> getTopParticipants(int limit) {
         PageRequest pageable = PageRequest.of(0, limit);
+
+        // TODO : 조회 쿼리 변경
+
         List<Object[]> topParticipants = participationRepository.findTopParticipants(pageable);
 
         return topParticipants.stream()
                 .map(row -> {
                     Long memberId = (Long) row[0];
                     String memberNickname = (String) row[1];
-                    Long participationCount = (Long) row[2];
-                    Long successCount = (Long) row[3];
-                    Double successRate = ((Number) row[4]).doubleValue() * 100;
+                    String profileImageUrl = (String) row[2];
+                    Long participationCount = (Long) row[3];
+                    Long successCount = (Long) row[4];
+                    Double successRate = ((Number) row[5]).doubleValue() * 100;
 
                     List<String> topCategories = participationRepository.findTopCategoriesByMemberId(memberId);
 
-                    return new TopParticipantResponse(memberId, memberNickname, participationCount, successCount, successRate, topCategories);
+                    return new ChallengerParticipationPersonResponse(memberId, memberNickname, profileImageUrl, participationCount, successCount, successRate, topCategories);
                 })
                 .collect(Collectors.toList());
     }
@@ -161,10 +166,12 @@ public class ChallengeParticipationService {
             List<String> topCategories = participationRepository.findTopCategoriesByMemberId(member.getId());
 
             return new ChallengerParticipationPersonResponse(
+                    member.getId(),
                     member.getNickname(),
                     member.getProfile(),
                     successCount,
                     totalParticipation,
+                    Double.parseDouble(df.format((double) successCount / totalParticipation)),
                     topCategories
             );
         }).collect(Collectors.toList());
