@@ -10,6 +10,12 @@ import org.springframework.http.HttpStatus;
 public enum SuccessStatus {
 
     /**
+     * auth
+     */
+    TOKEN_REFRESH_SUCCESS(HttpStatus.OK, "토큰 갱신 성공"),
+    LOGOUT_SUCCESS(HttpStatus.OK, "로그아웃 성공"),
+
+    /**
      * member
      */
     MEMBER_INFO_RETRIEVAL_SUCCESS(HttpStatus.OK, "회원 정보 조회 성공"),
@@ -48,7 +54,12 @@ public enum SuccessStatus {
     CHALLENGE_RETRIEVAL_SUCCESS(HttpStatus.OK, "챌린지 조회 성공"),
     CHALLENGE_PARTICIPATION_SUCCESS(HttpStatus.OK, "챌린지 참여 성공"),
     CHALLENGE_PROOF_UPLOAD_SUCCESS(HttpStatus.OK, "챌린지 인증 업로드 성공"),
-    CHALLENGE_UPDATE_SUCCESS(HttpStatus.NO_CONTENT, "챌린지 업데이트 성공");
+    CHALLENGE_UPDATE_SUCCESS(HttpStatus.NO_CONTENT, "챌린지 업데이트 성공"),
+    CHALLENGE_PARTICIPANTS_RETRIEVED_SUCCESS(HttpStatus.OK, "챌린지 참여자 목록 조회에 성공했습니다."),
+    CHALLENGE_PROOFS_RETRIEVED_SUCCESS(HttpStatus.OK, "챌린지 인증 내역 조회에 성공했습니다."),
+    CHALLENGE_DETAILS_RETRIEVED_SUCCESS(HttpStatus.OK, "챌린지 상세 조회에 성공했습니다."),
+    CHALLENGE_EXPLORE_SUCCESS(HttpStatus.OK, "챌린지 탐색에 성공했습니다.");
+    ;
 
 
     private final HttpStatus httpStatus;

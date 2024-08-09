@@ -1,5 +1,7 @@
 package com.fledge.fledgeserver.member.dto;
 
+import com.fledge.fledgeserver.common.Interface.PresignedUrlApplicable;
+import com.fledge.fledgeserver.file.FileService;
 import com.fledge.fledgeserver.member.entity.Member;
 import com.fledge.fledgeserver.member.entity.Role;
 import lombok.Getter;
@@ -8,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Getter
 @Schema(description = "회원 응답 DTO")
-public class MemberResponse {
+public class MemberResponse implements PresignedUrlApplicable {
     @Schema(description = "회원 ID", example = "1")
     private Long id;
 
@@ -34,5 +36,12 @@ public class MemberResponse {
         this.profile = member.getProfile();
         this.role = member.getRole();
         this.registerType = member.getRegisterType();
+    }
+
+    @Override
+    public void applyPresignedUrls(FileService fileService) {
+        if (this.profile != null) {
+            this.profile = fileService.getDownloadPresignedUrl(this.profile);
+        }
     }
 }

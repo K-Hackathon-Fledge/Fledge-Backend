@@ -27,7 +27,7 @@ public class FileService {
 
     private final AmazonS3 amazonS3;
 
-    public PresignedUrlResponse getPresignedUrl(String prefix, String originalFileName) {
+    public PresignedUrlResponse getUploadPresignedUrl(String prefix, String originalFileName) {
         String filePath = createPath(prefix, originalFileName);
         GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(bucket, filePath, HttpMethod.PUT);
         URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
@@ -35,11 +35,14 @@ public class FileService {
         return new PresignedUrlResponse(url.toString(), filePath);
     }
 
-    public String getFileUrl(String filePath) {
-        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(bucket, filePath, HttpMethod.GET);
-        URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+    public String getDownloadPresignedUrl(String filePath) {
+        if (filePath != null && filePath.startsWith("images/")) {
+            GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(bucket, filePath, HttpMethod.GET);
+            URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+            return url.toString();
+        }
 
-        return url.toString();
+        return filePath;
     }
 
     private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String bucket, String fileName, HttpMethod method) {

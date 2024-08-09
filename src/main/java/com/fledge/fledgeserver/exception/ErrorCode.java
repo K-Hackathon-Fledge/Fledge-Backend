@@ -43,8 +43,10 @@ public enum ErrorCode {
     CHALLENGE_NOT_FOUND(NOT_FOUND, "챌린지를 찾을 수 없습니다."),
     CHALLENGE_TYPE_INVALID(BAD_REQUEST, "챌린지 타입이 올바르지 않습니다."),
     CHALLENGE_PROOF_NOT_FOUND(NOT_FOUND, "챌린지 인증을 찾을 수 없습니다."),
-    CHALLENGE_PROOF_ALREADY_SUBMITTED(HttpStatus.BAD_REQUEST, "이미 제출된 인증입니다."),
-    CHALLENGE_FREQUENCY_INVALID(HttpStatus.BAD_REQUEST, "챌린지 빈도가 올바르지 않습니다.");
+    CHALLENGE_PROOF_ALREADY_SUBMITTED(BAD_REQUEST, "이미 제출된 인증입니다."),
+    CHALLENGE_FREQUENCY_INVALID(BAD_REQUEST, "챌린지 빈도가 올바르지 않습니다."),
+    CHALLENGE_PARTICIPATION_NOT_FOUND(BAD_REQUEST, "챌린지 참여 정보를 찾을 수 없습니다."),
+    CHALLENGE_PARTICIPATION_ALREADY_EXISTS(BAD_REQUEST, "해당 챌린지에 이미 참여 중입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

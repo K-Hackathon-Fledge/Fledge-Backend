@@ -1,24 +1,25 @@
 package com.fledge.fledgeserver.challenge.service;
 
+import com.fledge.fledgeserver.canary.repository.CanaryProfileRepository;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengerParticipationPersonResponse;
 import com.fledge.fledgeserver.challenge.repository.ChallengeRepository;
 import com.fledge.fledgeserver.challenge.Enum.Frequency;
-import com.fledge.fledgeserver.challenge.dto.TopParticipantResponse;
 import com.fledge.fledgeserver.challenge.entity.ChallengeParticipation;
 import com.fledge.fledgeserver.challenge.repository.ChallengeParticipationRepository;
 import com.fledge.fledgeserver.challenge.repository.ChallengeProofRepository;
-import com.fledge.fledgeserver.challenge.dto.ChallengeParticipationResponse;
+import com.fledge.fledgeserver.challenge.dto.response.ChallengeParticipationResponse;
 import com.fledge.fledgeserver.challenge.entity.Challenge;
 import com.fledge.fledgeserver.challenge.entity.ChallengeProof;
 import com.fledge.fledgeserver.common.utils.SecurityUtils;
 import com.fledge.fledgeserver.exception.CustomException;
 import com.fledge.fledgeserver.exception.ErrorCode;
 import com.fledge.fledgeserver.member.entity.Member;
-import com.fledge.fledgeserver.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,13 +30,22 @@ public class ChallengeParticipationService {
 
     private final ChallengeParticipationRepository participationRepository;
     private final ChallengeProofRepository proofRepository;
-    private final MemberRepository memberRepository;
+    private final CanaryProfileRepository canaryProfileRepository;
     private final ChallengeRepository challengeRepository;
+    private final DecimalFormat df = new DecimalFormat("#.0");
 
     @Transactional
     public ChallengeParticipationResponse participateInChallenge(Long memberId, Long challengeId, LocalDate startDate) {
 
         Member member = SecurityUtils.checkAndGetCurrentUser(memberId);
+
+        if (!canaryProfileRepository.existsByMemberAndApprovalStatusIsTrue(member)){
+            throw new CustomException(ErrorCode.CANARY_NOT_FOUND, "인증된 자립준비 청년이 아닙니다.");
+        }
+
+        if (participationRepository.existsByMemberIdAndChallengeId(memberId, challengeId)) {
+            throw new CustomException(ErrorCode.CHALLENGE_PARTICIPATION_ALREADY_EXISTS);
+        }
 
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));
@@ -91,21 +101,25 @@ public class ChallengeParticipationService {
     }
 
     @Transactional(readOnly = true)
-    public List<TopParticipantResponse> getTopParticipants(int limit) {
+    public List<ChallengerParticipationPersonResponse> getTopParticipants(int limit) {
         PageRequest pageable = PageRequest.of(0, limit);
+
+        // TODO : 조회 쿼리 변경
+
         List<Object[]> topParticipants = participationRepository.findTopParticipants(pageable);
 
         return topParticipants.stream()
                 .map(row -> {
                     Long memberId = (Long) row[0];
                     String memberNickname = (String) row[1];
-                    Long participationCount = (Long) row[2];
-                    Long successCount = (Long) row[3];
-                    Double successRate = ((Number) row[4]).doubleValue() * 100;
+                    String profileImageUrl = (String) row[2];
+                    Long participationCount = (Long) row[3];
+                    Long successCount = (Long) row[4];
+                    Double successRate = ((Number) row[5]).doubleValue() * 100;
 
                     List<String> topCategories = participationRepository.findTopCategoriesByMemberId(memberId);
 
-                    return new TopParticipantResponse(memberId, memberNickname, participationCount, successCount, successRate, topCategories);
+                    return new ChallengerParticipationPersonResponse(memberId, memberNickname, profileImageUrl, participationCount, successCount, successRate, topCategories);
                 })
                 .collect(Collectors.toList());
     }
@@ -140,6 +154,27 @@ public class ChallengeParticipationService {
                 participationRepository.save(participation);
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChallengerParticipationPersonResponse> getParticipantsByChallengeId(Long challengeId) {
+        List<ChallengeParticipation> participations = participationRepository.findByChallengeId(challengeId);
+        return participations.stream().map(participation -> {
+            Member member = participation.getMember();
+            long successCount = participationRepository.countSuccessByMemberId(member.getId());
+            long totalParticipation = participationRepository.countByMemberId(member.getId());
+            List<String> topCategories = participationRepository.findTopCategoriesByMemberId(member.getId());
+
+            return new ChallengerParticipationPersonResponse(
+                    member.getId(),
+                    member.getNickname(),
+                    member.getProfile(),
+                    successCount,
+                    totalParticipation,
+                    Double.parseDouble(df.format((double) successCount / totalParticipation)),
+                    topCategories
+            );
+        }).collect(Collectors.toList());
     }
 }
 
