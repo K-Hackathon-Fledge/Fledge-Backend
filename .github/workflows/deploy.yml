@@ -78,6 +78,7 @@ jobs:
               --log-driver=awslogs \
               --log-opt awslogs-group=/fledge/backend \
               --log-opt awslogs-region=ap-northeast-2 \
-              --log-opt awslogs-stream="$CONTAINER_NAME" \
-              --env SPRING_PROFILES_ACTIVE=prod \ 
+              --log-opt awslogs-stream="$CONTAINER_NAME" \ 
+              -e TZ=Asia/Seoul \
+              -e SPRING_PROFILES_ACTIVE=prod \
               "${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:backend"
