@@ -36,7 +36,6 @@ public class PostCreateRequest {
     private String item;
 
     @Schema(description = "구매 URL", example = "https://example.com/product/1")
-    @NotBlank(message = "구매 URL은 필수입니다.")
     @URL(message = "유효한 URL 형식이어야 합니다.")
     private String purchaseUrl;
 
