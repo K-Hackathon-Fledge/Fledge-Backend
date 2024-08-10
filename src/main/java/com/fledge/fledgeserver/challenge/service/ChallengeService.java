@@ -139,7 +139,7 @@ public class ChallengeService {
     }
 
     private double calculateSuccessRate(Challenge challenge) {
-        return Double.parseDouble(df.format((double) challenge.getSuccessCount() / challenge.getParticipantCount()));
+        return Double.parseDouble(df.format(((double) challenge.getSuccessCount() / challenge.getParticipantCount()) * 100));
     }
 }
 
