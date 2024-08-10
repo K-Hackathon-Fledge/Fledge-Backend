@@ -53,6 +53,7 @@ public class ChallengeService {
         boolean isParticipating = SecurityUtils.isAuthenticated() && challengeParticipationRepository.existsByMemberIdAndChallengeId(SecurityUtils.getCurrentUserId(), challengeId);
 
         return new ChallengeDetailResponse(
+                challenge.getId(),
                 challenge.getTitle(),
                 challenge.getLikeCount(),
                 challenge.getCategories(),
@@ -107,6 +108,7 @@ public class ChallengeService {
 
     private ChallengeResponse createChallengeResponse(Challenge challenge) {
         return new ChallengeResponse(
+                challenge.getId(),
                 challenge.getTitle(),
                 challenge.getLikeCount(),
                 challenge.getCategories(),
@@ -121,6 +123,7 @@ public class ChallengeService {
 
     private ChallengeResponse createChallengeResponseWithSupport(Challenge challenge) {
         return new ChallengeResponse(
+                challenge.getId(),
                 challenge.getTitle(),
                 challenge.getLikeCount(),
                 challenge.getCategories(),

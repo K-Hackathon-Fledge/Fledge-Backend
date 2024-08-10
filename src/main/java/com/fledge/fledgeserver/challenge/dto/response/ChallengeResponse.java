@@ -15,6 +15,9 @@ import java.util.List;
 @Schema(description = "챌린지 응답 DTO")
 public class ChallengeResponse {
 
+    @Schema(description = "챌린지 id", example = "1")
+    private final long id;
+
     @Schema(description = "챌린지 제목", example = "챌린지 타이틀")
     private final String title;
 

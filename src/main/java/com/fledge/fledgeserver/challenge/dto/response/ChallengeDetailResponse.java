@@ -15,9 +15,9 @@ public class ChallengeDetailResponse extends ChallengeResponse {
     @Schema(description = "사용자 참여 여부", example = "true")
     private boolean isParticipating;
 
-    public ChallengeDetailResponse(String title, int likeCount, List<ChallengeCategory> categories, String type,
+    public ChallengeDetailResponse(long id, String title, int likeCount, List<ChallengeCategory> categories, String type,
                                    String description, double successRate, int successCount, int participantCount, boolean isParticipating) {
-        super(title, likeCount, categories, type, description, successRate, successCount, participantCount, null, null, null);
+        super(id, title, likeCount, categories, type, description, successRate, successCount, participantCount, null, null, null);
         this.isParticipating = isParticipating;
     }
 }
