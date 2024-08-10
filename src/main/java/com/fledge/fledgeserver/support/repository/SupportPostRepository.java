@@ -29,19 +29,24 @@ public interface SupportPostRepository extends JpaRepository<SupportPost, Long> 
     }
 
     @Query("SELECT sp FROM SupportPost sp " +
-            "LEFT JOIN FETCH sp.images " + // Fetch images
+            "LEFT JOIN FETCH sp.images " +
             "WHERE (:category IS NULL OR sp.supportCategory IN :category) " +
             "AND (sp.title LIKE %:q% OR sp.reason LIKE %:q%) " +
-            "AND (:status IS NULL OR " +
-            "  (sp.supportPostStatus IN (com.fledge.fledgeserver.support.entity.SupportPostStatus.PENDING, " +
-            "                             com.fledge.fledgeserver.support.entity.SupportPostStatus.IN_PROGRESS) AND :status = 'ing') OR " +
-            "  (sp.supportPostStatus IN (com.fledge.fledgeserver.support.entity.SupportPostStatus.COMPLETED, " +
-            "                             com.fledge.fledgeserver.support.entity.SupportPostStatus.TERMINATED) AND :status = 'end')) " +
+            "AND (:status IS NULL OR (" +
+            "    (:status = 'ing' AND sp.supportPostStatus IN " +
+            "        (com.fledge.fledgeserver.support.entity.SupportPostStatus.PENDING, " +
+            "         com.fledge.fledgeserver.support.entity.SupportPostStatus.IN_PROGRESS)) " +
+            "    OR " +
+            "    (:status = 'end' AND sp.supportPostStatus IN " +
+            "        (com.fledge.fledgeserver.support.entity.SupportPostStatus.COMPLETED, " +
+            "         com.fledge.fledgeserver.support.entity.SupportPostStatus.TERMINATED))" +
+            ")) " +
             "ORDER BY sp.createdDate DESC")
     Page<SupportPost> findByCategoryAndSearchAndSupportPostStatusWithImages(@Param("category") List<SupportCategory> category,
                                                                             @Param("q") String q,
                                                                             @Param("status") String status,
                                                                             Pageable pageable);
+
     @Query("SELECT sp FROM SupportPost sp " +
             "WHERE FUNCTION('DATEDIFF', sp.expirationDate, CURRENT_DATE) <= 7 " +
             "AND (sp.supportPostStatus = :pending OR sp.supportPostStatus = :inProgress) " +
