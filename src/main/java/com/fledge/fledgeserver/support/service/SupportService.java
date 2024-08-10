@@ -23,10 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fledge.fledgeserver.support.entity.SupportPostStatus.IN_PROGRESS;
@@ -253,13 +250,19 @@ public class SupportService {
 
     @Transactional(readOnly = true)
     public PostTotalPagingResponse pagingSupportPost(int page, String q, List<String> category, String status) {
-        PageRequest pageable = PageRequest.of(page, 9);
+        PageRequest pageable = PageRequest.of(page, 9); // 페이지 번호가 0부터 시작
 
         List<SupportCategory> selectedCategories = category.isEmpty() ? null : category.stream()
                 .map(SupportCategory::valueOf)
                 .collect(Collectors.toList());
 
+        // 쿼리를 통해 페이징된 결과를 가져옵니다.
         Page<SupportPost> supportPostPage = supportPostRepository.findByCategoryAndSearchAndSupportPostStatusWithImages(selectedCategories, q, status, pageable);
+        // 결과가 없을 경우 빈 리스트 반환
+        if (supportPostPage.isEmpty()) {
+            return new PostTotalPagingResponse(0, 0, Collections.emptyList());
+        }
+
         long totalElements = supportPostPage.getTotalElements();
 
         List<PostPagingResponse> postPagingResponse = supportPostPage.getContent().stream()
@@ -268,8 +271,10 @@ public class SupportService {
                     int supportedPrice = supportPost.getSupportRecords().stream()
                             .mapToInt(SupportRecord::getAmount)
                             .sum();
+                    
                     RecordProgressGetResponse supportRecordProgress = new RecordProgressGetResponse(totalPrice, supportedPrice);
                     String imageUrl = supportPost.getImages().isEmpty() ? null : fileService.getDownloadPresignedUrl(supportPost.getImages().get(0).getImageUrl());
+                    System.out.println("imageUrl = " + imageUrl);
                     return new PostPagingResponse(
                             supportPost.getId(),
                             supportPost.getTitle(),
@@ -280,7 +285,7 @@ public class SupportService {
                 })
                 .collect(Collectors.toList());
 
-        int totalPages = supportPostPage.getTotalPages();
+        int totalPages = supportPostPage.getTotalPages(); // 총 페이지 수 계산
 
         return new PostTotalPagingResponse((int) totalElements, totalPages, postPagingResponse);
     }
@@ -294,7 +299,7 @@ public class SupportService {
                 .map(supportPost -> {
                     int totalPrice = supportPost.getPrice();
                     Long supportPostId = supportPost.getId();
-                    System.out.println("supportPostId = " + supportPostId);
+
                     int supportedPrice = supportRecordRepository.sumSupportedPriceBySupportPostId(supportPostId);
 
                     RecordProgressGetResponse supportRecordProgress = new RecordProgressGetResponse(totalPrice, supportedPrice);
