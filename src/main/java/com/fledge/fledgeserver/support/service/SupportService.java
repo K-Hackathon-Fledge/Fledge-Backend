@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -186,9 +187,16 @@ public class SupportService {
         String item = supportPost.getItem();
         String purchaseUrl = supportPost.getPurchaseUrl();
         int price = supportPost.getPrice();
-        List<String> images = supportPost.getImages().stream()
-                .map(supportImage -> fileService.getDownloadPresignedUrl(supportImage.getImageUrl()))
+      
+        List<Map<String, String>> images = supportPost.getImages().stream()
+                .map(supportImage -> {
+                    Map<String, String> imageMap = new HashMap<>();
+                    imageMap.put("originalUrl", supportImage.getImageUrl());
+                    imageMap.put("presignedUrl", fileService.getDownloadPresignedUrl(supportImage.getImageUrl())); // 변환된 URL
+                    return imageMap; // Map 반환
+                })
                 .toList();
+      
         String promise = String.valueOf(supportPost.getPromise());
         LocalDate expirationDate = supportPost.getExpirationDate();
 
@@ -202,7 +210,7 @@ public class SupportService {
         String detailAddress = null;
         String zip = null;
 
-        if (supportCategory == SupportCategory.MEDICAL || supportCategory == SupportCategory.LEGAL_AID) {
+        if (supportCategory == SupportCategory.MEDICAL || supportCategory == SupportCategory.LEGAL_AID || supportCategory == SupportCategory.EDUCATION) {
             bank = supportPost.getBank();
             account = supportPost.getAccount();
         } else {

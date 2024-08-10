@@ -87,7 +87,7 @@ public class SupportController {
 
     @Operation(summary = "후원하기 게시글 수정",
             description = "후원하기 게시글을 수정합니다.")
-    @PatchMapping("/{supportId}")
+    @PutMapping("/{supportId}")
     public ResponseEntity<ApiResponse<PostGetResponse>> updateSupportPost(
             Principal principal,
             @PathVariable(value = "supportId") Long supportId,
