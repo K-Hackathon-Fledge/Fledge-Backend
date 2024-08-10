@@ -274,7 +274,6 @@ public class SupportService {
                     
                     RecordProgressGetResponse supportRecordProgress = new RecordProgressGetResponse(totalPrice, supportedPrice);
                     String imageUrl = supportPost.getImages().isEmpty() ? null : fileService.getDownloadPresignedUrl(supportPost.getImages().get(0).getImageUrl());
-                    System.out.println("imageUrl = " + imageUrl);
                     return new PostPagingResponse(
                             supportPost.getId(),
                             supportPost.getTitle(),
